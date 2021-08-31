@@ -1,0 +1,122 @@
+<polymer-element name="panel-creernc" attributes="session dir1">
+<template>
+<link rel="stylesheet" href="$/js/panel.css$" />
+<style>
+</style>
+<div class="panel-bar">Aide&nbsp;
+	<btn-aide ref="creerNC"></btn-aide>
+	<div class="{{idem ? 'btnAnnulerF' : 'btnAnnulerA'}}" on-click="{{panelOff}}"></div>
+</div>
+<div class="panel-body">
+	<div style="text-align:center">
+		<div class="btnTitre{{disable ? ' disabled':''}}" on-click="{{creerNC}}">
+		Créer un nouveau carnet de secrets</div>
+	</div>
+	<div class='infobox'>Ni le nom du carnet, 
+	ni la clé de cryptage, ni la phrase pour s'en souvenir, ne PEUVENT PLUS être changés
+	après création du carnet.<br>
+	La clé de cryptage ne pourra jamais être retrouvée si elle est perdue, 
+	les secrets resteront ... secrets.</div>
+	<div class="label">Nom du carnet :</div>
+	<div class="entree">
+		<input value="{{ncNom}}" type="text">
+		<div class="diag{{ncNomErr ? ' diagErr':''}}">{{ncNomDiag}}</div>
+	</div>
+	<div class="label">Clé de cryptage :</div>
+	<div class="entree">
+		<input value="{{ncCle}}" type="{{session.enclair ? 'text' : 'password'}}" >
+		<template if="{{ncCleErr}}">
+		<div class="diagErr">La clé doit avoir une longueur minimale de 8 catractères</div>
+		</template>
+	</div>
+	<elt-checkbox texte="Voir la clé en clair" data="{{session.enclair}}"></elt-checkbox>
+	<div class="label">Vérification de la clé de cryptage :</div>
+	<div class="entree">
+		<input value="{{ncCle2}}" type="{{session.enclair ? 'text' : 'password'}}">
+		<template if="{{ncCle != ncCle2}}">
+		<div class="diagErr">Le code et sa vérification sont différents</div>
+		</template>
+	</div>
+	<div class="label">Phrase pour se rappeler de la clé :</div>
+	<div class="entree">
+		<input value="{{ncPhrase}}" type="text">
+		<template if="{{ncPhraseErr}}">
+		<div class="diagErr">La phrase doit avoir une longueur minimale de 8 catractères</div>
+		</template>
+	</div>
+	<div class="filler"></div>
+</div>
+</template>
+<script>
+Polymer('panel-creernc', {
+	observe : {
+		ncNom : 'changeNcNom',
+		ncCle : 'changeNcCle',
+		ncPhrase : 'changeNcPhrase'
+	},
+	ready : function(){
+	},
+	sessionChanged : function(oldValue, newValue){
+		if (newValue.panel == "creerNC"){
+			this.ncNom = "";
+			this.ncCle = "";
+			this.ncCle2 = "";
+			this.ncPhrase = "";
+			this.changeNcNom();
+			this.changeNcPhrase();
+		}
+	},
+	setDisableNC : function(){
+		this.idem = !this.ncNom;
+		this.disable = this.idem || (this.ncCleErr || this.ncCle != this.ncCle2 || this.ncNomErr || this.ncPhraseErr);
+	},
+	changeNcNom : function(){
+		var n = this.ncNom;
+		if (!n) {
+			this.ncNomErr = false;
+			this.ncNomDiag = "Le nom du carnet est requis (lettres majuscules / minuscules, chiffres, points seulement)";
+		} else {
+			if (!n.match(Secrets.regExpId)) {
+				this.ncNomErr = true;
+				this.ncNomDiag = "Un nom de carnet ne peut contenir que des lettres majuscules / minuscules, des chiffres et des points";
+			} else {
+				var existe = false;
+				for(var i = 0, e = null; e = this.dir1[i]; i++)
+					if (e.name == n)
+						existe = true;
+				this.ncNomErr = existe;
+				this.ncNomDiag = existe ? "Un carnet porte déjà ce nom" : "";
+			}
+		}
+		this.setDisableNC();
+	},
+	changeNcCle : function(){
+		this.ncCleErr = this.ncCle.length < 8;
+		this.setDisableNC();
+	},
+	changeNcPhrase : function(){
+		this.ncPhraseErr = this.ncPhrase.length < 8;
+		this.setDisableNC();
+	},
+	creerNC : function() {
+		if (!this.disable) {
+			var book = {name: this.ncNom,	md5Key: Util.md5(this.ncCle),	phrase: this.ncPhrase	}
+			var ld1 = false;
+			if (Secrets.session.ici) {
+				Local.nouveau(book.name, book.md5Key, book.phrase);
+				ld1 = true;
+			}
+			if (Secrets.session.srv && !Secrets.session.srvRO) {
+				Serveur.book(function(data){
+					Serveur.load();
+				}, null, 4, Secrets.session.ident, Secrets.session.md5PIN, book, null);
+			} else
+				if (ld1)
+					Secrets.loadDir1();
+			Secrets.panelOff();
+		}
+	},
+	panelOff : function() { Secrets.panelOff(); }
+});
+</script>
+</polymer-element>

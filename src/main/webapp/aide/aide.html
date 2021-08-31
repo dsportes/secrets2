@@ -1,0 +1,915 @@
+<html>
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+    <!-- 
+    <meta http-equiv="cache-control" content="no-cache">    
+    <meta http-equiv="pragma" content="no-cache>    
+    <meta http-equiv="Expires" content="0">         
+    -->
+    <title>Nos Carnets de Secrets</title>
+    <link rel="stylesheet" href="$aide.css$">
+  </head>
+  <body>
+    <div id="acacher">
+      <div class="back" onclick="window.history.back();">Reculer</div>
+      <div class="forward" onclick="window.history.forward();">Avancer</div>
+      <div class="manuel">
+      <a class="aManuel" href="$/aide/aide.html$#1" target="_blank">Afficher le manuel</a></div>
+    </div>
+    <div class="h0" id="accueil">Bienvenue dans l'application Secrets ... </div>
+    <div class="italic">Version : <span id="version">???<br>
+      </span></div>
+    <div><br>
+      Mots de passe, numéros de comptes, identifiants et pseudos, voire certains
+      noms et numéros de téléphones etc. sont des informations confidentielles,
+      personnelles et qu'il est souvent nécessaire de pouvoir trouver rapidement
+      et n'importe où. L'application "Secrets" permet de regrouper ces
+      différents "secrets" dans des carnets de secrets et d'y accéder depuis des
+      PC, Mac, smartphones, tablettes, etc. <br>
+      Ces appareils sont souvent connectés à Internet mais pas toujours :
+      l'application fonctionne aussi bien "off line" en utilisant un stockage
+      local sur l'appareil que "on line" en utilisant un serveur central sur le
+      "cloud" et permet de synchroniser les secrets entre la mémoire locale et
+      le serveur central. Que ce soit depuis son smartphone, avec ou sans réseau
+      ou depuis un café internet (en particulier quand son smartphone n'est pas
+      utilisable), les secrets sont toujours accessibles.<br>
+      Les secrets ont à rester ... secrets : pour se faire ils sont encryptés
+      directement à la saisie dans un appreil et décryptés juste avant affichage
+      en utilisant une phrase de cryptage de plus de 8 signes que seul le
+      propriétaire connaît. Stockage et échanges sur le réseau ne se font
+      qu'avec des secrets encryptés : les appareils comme le serveur peuvent
+      être attaqués (ou volés) sans risque le contenu des secrets reste
+      illisible. La clé de cryptage étant elle-même brouillée, une attaque de
+      "force brute" a une chance infime de succès.<br>
+      Seul petit problème : ne pas oublier sa clé de cryptage (propre à chaque
+      carnet), sinon les secrets emporteront leur secrets dans leur tombe.<br>
+      <h4>Table des matières</h4>
+    </div>
+    <ul>
+      <li><a href="#url-acces">Url d'accès</a></li>
+      <li><a href="#principes">Principes</a></li>
+      <ul>
+        <li><a href="#pseudo">Pseudo et code PIN d'un propriétaire de carnets</a></li>
+        <li><a href="#carnets">Carnets de secrets</a></li>
+        <li><a href="#secrets">Secrets d'un carnet, lecture et mise à jour</a></li>
+        <li><a href="#memoire-serveur">Mémoire du serveur</a></li>
+        <li><a href="#memoires-locales">Mémoires locales</a></li>
+        <li><a href="#synchronisations">Synchronisations</a></li>
+        <li><a href="#carnets-publics">Carnets "publics"</a></li>
+        <li><a href="#carnets-proteges">Carnets "protégés en écriture"</a></li>
+        <li><a href="#clonage">Clonage d'un carnet</a></li>
+        <li><a href="#suppression">Suppression d'un carnet</a></li>
+        <li><a href="#exporter1">Exporter un carnet</a></li>
+      </ul>
+      <li><a href="#aideVue1">Aide sur les vues et boîtes de dialogue</a></li>
+      <li><a href="#aideVue2">Aide sur les vues et boîtes de dialogue :
+          administration</a></li>
+      <li><a href="#faq">Questions fréquentes</a></li>
+      <li><a href="#code-des-erreurs">Codes des erreurs</a></li>
+      <li><a href="#admin">Adiministration des pseudos</a></li>
+      <li><a href="#tech">Informations techniques</a></li>
+    </ul>
+    <br>
+    <h2 id="url-acces">URL d'accès - Mode "online / offline"</h2>
+    <a target="_blank" href="htpps://secrets-sportes-fr.appspot.com">htpps://secrets-sportes-fr.appspot.com</a>&nbsp;
+    <div>C'est httpS et non http (l'accès non sécurisé n'est pas géré).<br>
+      <br>
+      Cette application fonctionne soit "on-line" comme n'importe quelle
+      application Web, soit "off-line" comme une application locale.<br>
+      Pour obtenir l’application “off-line” il suffit de se connecter une
+      première fois à Internet en appelant l'URL ci-dessus. L'application ainsi
+      chargée à cette occasion peut être ensuite utilisée sans connexion
+      Internet : elle est automatiquement remise à jour à la dernière version
+      lors de chaque connexion sur Internet (si une nouvelle version est
+      disponible).<br>
+      Sur smartphone, il est possible de créer un raccourci qui apparaîtra comme
+      une application locale (mais ça&nbsp; n’en n’est pas une).<br>
+      Lire aussi "<a href="#recharger">Comment recharger une nouvelle version de
+        l'application</a>".
+      <h2 id="principes">Principes</h2>
+      <p>Cette application enregistre pour des utilisateurs leurs carnets de
+        secrets et y accède soit par Internet, soit depuis une copie locale sur
+        divers appareils (PC, Mac, smartphones, tablettes).</p>
+      <p>Chaque carnet a une clé de cryptage connue de son seul propriétaire.
+        Les secrets qui y sont consignés sont mémorisés et échangés sur le
+        réseau exclusivement cryptés et ne sont jamais en clair ... sauf au
+        moment de l'affichage à l'écran, cryptage et décryptage s'effectuant
+        dans une session du navigateur.</p>
+      <p>Les utilisateurs&nbsp; peuvent disposer de leurs divers codes et
+        identifiants / pseudos à l'abri des grandes oreilles, en local sur leurs
+        appareils et / ou synchronisés sur un serveur central.</p>
+      <h3 id="pseudo">Peudo et code PIN d'un propriétaire</h3>
+      Chaque propriétaire de carnets de secrets dispose d'un <span style="font-weight: bold;">pseudo
+        </span>(par exemple <span class="monospace">jules.cesar</span>).&nbsp;
+      Pour être utilisé on-line ce pseudo doit avoir été enregistré par
+      l'administrateur de l'application . <br>
+      <span style="font-weight: bold;">Un code PIN</span> est aussi déclaré par
+      l'administrateur afin de réserver l'accès en écriture au serveur aux
+      seules personnes connaissant le code PIN attaché au pseudo. Le code PIN
+      peut ensuite être modifié par son propriétaire à condition qu'il connaisse
+      l'ancien. L'administrateur peut réinitialiser un code PIN sur demande de
+      son propriétaire mais n'a pas le moyen de connaître un code oublié.<br>
+      Lire aussi : "<a href="#multiid">Qu'est-ce qui empêche plusieurs
+        utilisateurs de choisir le même pseudo ?</a>"<br>
+      <h3 id="carnets">Carnets de secrets</h3>
+      Un propriétaire peut créer plusieurs carnets de secrets. Chaque carnet :<br>
+      <ul>
+        <li>a un <span style="font-weight: bold;">nom </span>simple et non
+          modifiable, par exemple "<span class="monospace">Poésies</span>";</li>
+        <li>a une <span style="font-weight: bold;">clé de cryptage</span> non
+          modifiable par exemple "<span class="monospace">les sanglots longs</span>";</li>
+        <li>a une <span style="font-weight: bold;">phrase </span>qui permet à
+          son propriétaire de se rapeller quelle clé il a employé par exemple "<span
+
+            class="monospace">Verlaine</span>".</li>
+      </ul>
+      La clé de cryptage n'est jamais stockée en clair nulle part, ne circule
+      jamais sur le réseau et n'est jamais transmise au serveur. Ce qui est
+      stocké c'est un code calculé depuis cette clé (le "digest MD5" du nom de
+      l'algorithme de codage) qui permet de savoir si la clé est la bonne ou non
+      mais ne permet pas de la retrouver. <br>
+      Lire aussi : "<a href="#md5">Peut-on découvrir une clé de cryptage depuis
+        son encodage en MD5 ?</a>"<br>
+      <ul>
+      </ul>
+      <h3 id="secrets">Secrets d'un carnet, lecture et mis à jour</h3>
+      <span style="font-weight: bold;">Un carnet peut contenir plusieurs secrets</span>.<br>
+      Chaque secret a un <span style="font-weight: bold;">nom </span>(non
+      modifiable) et un <span style="font-weight: bold;">texte</span> sans
+      formatage (c'est du texte "text/plain"). Tous les secrets d'un même carnet
+      sont cryptés par la même clé, celle du carnet.<br>
+      Les secrets peuvent être lus, mis à jour, supprimés (le texte est mis à
+      vide) et sont créés lors de la première mémorisation de leur texte (non
+      vide).<br>
+      <h3 id="memoire-serveur">Mémoire du serveur</h3>
+      Le serveur peut conserver en mémoire tous les carnets créés. Cette mémoire
+      est fiable, sécurisée et n'est pas sujette aux risques de pertes /
+      destructions / vols des appareils locaux sur lesquels ils sont consultés
+      et mis à jour. Chaque propriétaire a sa mémoire dédiée étanche des autres.<br>
+      <h3 id="memoires-locales">Mémoires locales</h3>
+      Chaque appareil peut disposer <span style="font-weight: bold;">d'un ou de
+        plusieurs navigateurs</span> (Chrome, Firefox ...), chacun étant doté
+      d'une mémoire dans laquelle les carnets peuvent être enregistrés. Sur PC
+      de plus un navigateur a autant d'espaces de stockage distincts que de
+      "sessions d'utilisateur".<br>
+      Quand on souhaite avoir un stockage local dans un appareil, par exemple
+      sur son smartphone, <span style="font-weight: bold;">il faut "activer" ce
+        stockage local et lui donner un nom</span>. Ainsi il est possible de
+      disposer d'un stockage "<span style="font-style: italic;">phone</span>", "<span
+
+        style="font-style: italic;">tab</span>", "<span style="font-style: italic;">PC-fixe</span>"
+      ... ou plus précisément "<span style="font-style: italic;">PC-fixe/FF/jules</span>"
+      (le stockage de Firefox sur le PC fixe pour l'utilisateur <span class="monospace">jules</span>).<br>
+      Par défaut, rien n'est stocké dans la mémoire du navigateur et le stockage
+      local peut être désactivé à tout instant ce qui efface les carnets stockés
+      localement dans la mémoire de ce navigateur.<br>
+      Sur un poste "public" (d'un café Internet, chez des amis, etc.) il n'est
+      pas souhaitable ni correct d'activer un stockage local.<br>
+      Le cas échéant si deux propriétaires partagent un même appareil (une
+      tablette par exemple), ils peuvent se mettre d'accord pour utiliser le
+      stockage local : les carnets de l'un ne se mélangent pas aux carnets de
+      l'autre (et restent illisibles sauf à connaître la clé de cryptage).<br>
+      <h3 id="synchronisations">Synchronisations</h3>
+      Pour un carnet de nom donné par exemple <span style="font-weight: bold;">Banques</span>,
+      il n'existe qu'<span style="font-weight: bold; font-style: italic;">un
+        seul exemplaire sur le serveur</span> mais <span style="font-weight: bold; font-style: italic;">autant
+        d'exemplaires locaux</span> que d'appareils où a été activé le stockage
+      local.<br>
+      La consultation et la mise à jour des secrets d'un carnet n'exige pas
+      d'être connecté : <br>
+      <ul>
+        <li>en mode "off-line" seul l'exemplaire local est lu, voire mis à jour;</li>
+        <li>en mode "on-line" la mise à jour d'un secret met à jour l'exemplaire
+          local (s'il y en a un) et l'exemplaire sur le serveur.</li>
+      </ul>
+      Il est clair que les exemplaires des carnets peuvent ne pas être tous
+      identiques à tout instant : synchroniser un exemplaire local et celui du
+      serveur consiste à les mettre au même niveau : pour chaque secret celui
+      mis à jour le plus récemment devient la référence et est recopié sur celui
+      le plus ancien.<br>
+      Toutefois il est possible de ne synchroniser que dans un sens (local vers
+      serveur, ou serveur vers local) bien que d'ordinaire la synchronisation
+      soit demandée dans les deux sens.<br>
+      C'est le propriétaire des carnets qui décide quand et quels carnets il
+      veut synchroniser sur quels appareils. L'information de date de dernière
+      mise à jour de chaque secret lui est présentée et il appuie ou non sur le
+      bouton de son choix.<br>
+      <h3 id="carnets-publics">Carnets "publics"</h3>
+      Un propriétaire peut déclarer certains de ses carnets d'accès "public".
+      Toute personne connaissant, l'identité du propriétaire et la clé de
+      cryptage du carnet peut le lire ... mais pas le mettre à jour sur le
+      serveur. C'est un moyen de permettre à un petit groupe de lire les secrets
+      gérés et mis à jour par l'un d'entre eux.<br>
+      En effet pour pouvoir "écrire" sur le serveur (mettre à jour des secrets,
+      créer / supprimer des carnets) il faut fournir le code PIN de protection
+      défini par le propriétaire: un carnet déclaré public peut être lu sans
+      avoir donné ce code PIN.<br>
+      <h3 id="carnets-proteges">Carnets "protégés en écriture"</h3>
+      Un propriétaire peut décider de "protéger en écriture" un de ses carnets :
+      dès lors la mise à jour n'est plus possible (du moins par mégarde). Ceci
+      permet d'achiver des carnets et de s'assurer ainsi que leur contenu ne
+      change pas. Il est possible aussi de lever cette protection.<br>
+      <h3 id="suppression">Suppression d'un carnet</h3>
+      Cette opération irrémédiable demande que le carnert ait été mis en
+      protection d'écriture et ce depuis plus de 2 minutes : le temps d'avoir
+      des remords en évitant une suppression malencontreuse. Ceci ne supprime
+      que le carnet local de l'appareil (s'il existe) et le carnet sur le
+      serveur (si on est "on-line") mais bien entendu ne peut pas toucher aux
+      carnets locaux des autres appareils s'il en existe.<br>
+      <h3 id="clonage">Cloner un carnet</h3>
+      Ceci permet de créer un nouveau carnet contenant tous les secrets de son
+      carnet source mais :<br>
+      <ul>
+        <li>le carnet cloné a son nom à lui et vit ensuite sa vie;</li>
+        <li>le carnet cloné a une clé de cryptage qui peut être différente de
+          celle de sa source : elle est demandé au clonage et reste ensuite non
+          modifiable;</li>
+        <li>le carnet cloné a une phrase d'aide à lui, donnée au clonage et non
+          modifiable après.</li>
+      </ul>
+      <span style="font-style: italic;">Remarque </span>: c'est le seul cas où
+      la date-heure de dernière mise à jour d'un secret peut être antérieure à
+      la date-heure de création du carnet qui le contient.<br>
+      <h3 id="exporter1">Exporter un carnet</h3>
+      Un fichier de texte listant en clair tous les secrets d'un carnet peut
+      être généré (si le navigateur supporte cette fonctionalité). Il est clair
+      qu'il faut éviter de laisser trainer cet export en clair n'importe où.
+      <h2>Pouvoirs de l'administrateur</h2>
+      L'administrateur ne peut effectuer que les 3 opérations ci-dessous et en
+      aucun cas ne peut lire ou mettre à jour les secrets. Ses actions ne
+      concernent que le serveur. Il peut :<br>
+      <ul>
+        <li>créer un pseudo sur le sur le serveur et le détruire, ce qui
+          supprime tous les carnets de ce propriétaire sur le serveur ;</li>
+        <li>changer le code PIN d'un propriétaire, soit en le donnant en clair,
+          soit de préférence en le donnant dans la forme encryptée MD5 fournie
+          par le propriétaire qui peut ainsi récupérer un accès au serveur pour
+          lequel le code PIN aurait été oublié (l'ancien code PIN étant
+          impossible à retrouver) ;</li>
+        <li>supprimer un carnet dont le contenu aurait été signalé comme
+          délictueux ... encore que comme le contenu n'est accessible qu'à son
+          propriétaire ce caractère n'est guère simple à déterminer. Les
+          autorités judiciaires peuvent toutefois l'exiger et n'ont pas à se
+          justifier des éléments qui leur ont permis de statuer.</li>
+      </ul>
+      L'administrateur ne peut jamais accéder aux stockages locaux des appareils
+      des propriétaires<br>
+      Ce fonctionnement suppose que l'administrateur connaisse les proriétaires
+      et sache les identifier en cas de demande de changement de code PIN.<br>
+      Les propriétaires doivent avoir confiance en l'adminstrateur sachant qu'au
+      pire ils risquent de perdre leur stockage sur le serveur.<br>
+      <span style="font-style: italic;">Remarque</span> : comme d'habitude tous
+      doivent avoir confiance dans le développeur de l'application en sachant
+      qu'ils peuvent certes lire le code (open source) mais n'ont guère de
+      certitude sur le fait que c'est bien ce code qui est déployé (ceci est
+      vrai de TOUTE application).<br>
+      <h1 id="aideVue1">Aide sur les vues et boîtes de dialogue</h1>
+      <div>
+        <h3 id="changerIdent">Changer de pseudo (commuter sur un autre)</h3>
+        Cette boîte de dialogue apparait :<br>
+        <ul>
+          <li>soit à l'ouverture de l'application quand aucun pseudo n'est donné
+            dans l'URL ni n'a été sauvegardé localement comme pseudo par défaut;</li>
+          <li>soit lorsque le bouton "Changer" qui figure en haut à gauche dans
+            la barre de titre a été pressé dans le but de commuter sur un autre
+            pseudo.</li>
+        </ul>
+        Un pseudo est obligatoire pour poursuivre, les carnets sont proriété
+        d'un pseudo.<br>
+        Un pseudo ne peut compoter que des chiffres (0 à 9) , des lettres
+        minusules (a à z) ou majusules (A à Z) non accentuées et des points.<br>
+        En cochant la case correspondante le pseudo indiqué peut être mémorisé
+        localement pour être proposé par défaut à la prochaine ouverture de
+        l'application.<br>
+        <br>
+        Le code PIN d'écriture peut ne pas être fourni : dans ce cas il est
+        impossible d'écrire sur le serveur et les carnets situés sur le serveur
+        dont l'accès est privé (par défaut) sont masqués.<br>
+        En règle générale dès lors qu'on souhaite se connecter, le code PIN est
+        à saisir.<br>
+        Il n'y a pas de restriction à la syntaxe du code PIN.<br>
+        Si la mémorisation du pseudo est demandée, celle du code PIN peut l'être
+        aussi (ou non). <span style="font-weight: bold; color: red;">Attention
+        </span>: si l'appareil est volé ou accédé par un inconnu, celui-ci peut
+        lire la liste de vos carnets (mais pas les secrets) et modifier le code
+        PIN (voir aussi <a href="#risqueLocal">Risques encourrus avec le
+          stockage local d'un carnet et avantages</a>)<br>
+        <h3 id="connexion">Connexion au serveur</h3>
+        Par défaut en entrant dans l'application son mode est "off-line" : dans
+        certains cas l'accès à Internet peut être problématique, ou ou bloqué en
+        attente infinie, ou simplement non souhaitable compte tenu de
+        l'environnement. C'est pourquoi se connecter est un acte facultatif qui
+        s'obtient en appuyant sur le bouton "Connecter" qui appraît à coté du
+        nuage rouge "off-line" dans la barre de titre (seconde ligne
+        à droite).<br>
+        <ul>
+          <li>si la connexion échoue pour des raisons techniques, un message
+            l'explicite et le nuage rouge reste rouge, l'application restant
+            off-line;</li>
+          <li>si la connexion réussit et que le code PIN saisi est celui déclaré
+            au serveur, le nuage passe au vert et l'application est on-line;</li>
+          <li>si la connexion réussit et que le code PIN est non saisi ou a été
+            saisi différent de celui déclaré au serveur, le nuage passe en
+            organge et l'application est on-line mais en lecture seule : de plus
+            seuls les carnets déclarés d'accès public du serveur sont apparents.</li>
+        </ul>
+        Pour saisir ou modifier le code PIN appuyer sur le bouton "Changer" qui
+        figure sur la barre de titre en haut à gauche après le pseudo ou sur le
+        bouton "PIN ..." à côté du nuage.<br>
+        <h3 id="pinServeur2">Accès au serveur en lecture / écriture</h3>
+        <p>Le serveur est connecté, le code PIN saisi est reconnu, tous les
+          accès sont possibles.</p>
+        <p>Pour changer le code PIN d'écriture enregistré sur le serveur cliquer
+          sur le bouton "Changer le PIN".</p>
+        <h3 id="lectureSeule1">Accès au serveur en lecture seule : code PIN non
+          saisi</h3>
+        Le code PIN n'a pas été saisi : l'application est on-line mais en
+        lecture seule et seuls les carnets déclarés d'accès public du serveur
+        sont apparents.<br>
+        Pour saisir ou modifier le code PIN appuyer sur le bouton "Changer" qui
+        figure sur la barre de titre en haut à gauche après le pseudo ou sur le
+        bouton "PIN ..." à côté du nuage.<br>
+        <h3 id="lectureSeule2">Accès au serveur en lecture seule : code PIN
+          saisi non conforme à celui enregistré sur le serveur</h3>
+        Le code PIN a été saisi mais n'est pas celui délaré sur le serveur :
+        l'application est on-line mais en lecture seule et seuls les carnets
+        déclarés d'accès public du serveur sont apparents.<br>
+        Pour saisir ou modifier le code PIN appuyer sur le bouton "Changer" qui
+        figure sur la barre de titre en haut à gauche après le pseudo ou sur le
+        bouton "PIN ..." à côté du nuage.
+        <h3 id="pinServeur">Changer le code PIN d'écriture sur le serveur
+          associé au pseudo</h3>
+        Le code PIN d'écriture déclaré au serveur peut être changé par son
+        propriétaire dans cette boîte dialogue qui ne s'ouvre qui si la
+        connexion au serveur a été faite (donc que l'ancien code PIN saisi était
+        correct).<br>
+        Il n'y a pas de restriction à la syntaxe du code PIN.<br>
+        Si la mémorisation en local du pseudo était demandée (voir le dialogue
+        ouvert par le bouton "Changer" qui figure en haut à gauche après le
+        pseudo), celle du code PIN peut l'être aussi (ou non). <span style="font-weight: bold; color: red;">Attention
+          </span>: si l'appareil est volé ou accédé par un inconnu, celui-ci
+        peut lire la liste de vos carnets (mais pas les secrets) et modifier le
+        code PIN (voir aussi <a href="#risqueLocal">Risques encourrus avec le
+          stockage local d'un carnet et avantages</a>)
+        <h3 id="changerIci1">Gérer le stockage local : changer son nom, le
+          désactiver</h3>
+        Un stockage local a un nom de 1 à 16 signes : lettres majuscules (A à Z)
+        ou minuscules (a à z) non accentuées, chiffres (0 à 9), point, tiret,
+        slash seulement.<br>
+        Ce nom est indicatif et permet de savoir depuis quel appareil un secret
+        a été modifié la dernière fois. Rien n'empêche toutefois de nommer tous
+        ses stockages locaux par le même nom.<br>
+        Quand un stockage local est activé, cette boîte de dialogue permet :<br>
+        <ul>
+          <li>de changer son nom ;</li>
+          <li>de désactiver le stockage local, en d'autres termes <span style="font-weight: bold; color: red;">d'effacer
+              tous les carnets qui y sont stockés pour tous les pseudos</span>.
+          </li>
+        </ul>
+        <h3 id="changerIci2">Activer le stockage local</h3>
+        Le stockage local des carnets peut être activé : les carnets sont
+        stockés dans une mémoire (persistante sur disque) géré par le navigateur
+        : sous Windows les navigateurs ont des mémoires étanches par "login".<br>
+        Voire ci-après les risques et avanrages d'un stockage local.<br>
+        <h3 id="risqueLocal">Risques encourrus avec le stockage local d'un
+          carnet et avantages</h3>
+        L'avantage du stockage local est la possibilité d'accéder à ses secrets
+        "off-line", en l'absence de toute connexion Intenet : sur son smartphone
+        typiquement dans des lieux sauvages ou à l'étranger en l'absence d'accès
+        "data" ou parce que son opérateur n'est pas accessible.<br>
+        Les risques sont les suivants : tout inconnu ayant accès à cette session
+        du navigateur, dans un Cybercafé ou parce que votre smartphone a été
+        volé,
+        <ol>
+          <li>peut lire la liste de vos carnets, </li>
+          <li>peut modifier votre code PIN sur le serveur ce qui vous empêchera
+            d'écrire dessus jusqu'à ce que l'administrateur l'ait forcé à la
+            valeur que vous lui avez indiqué. Toutefois il suffit de ne pas
+            mémoriser le code PIN en local pour éviter ce problème.</li>
+        </ol>
+        Les secrets restent secrets : la clé de cryptage est dans votre seule
+        mémoire.<br>
+        En résumé : n'activer le stockage local que sur votre PC, votre
+        tablette, votre smartphone mais pas sur des postes plus ou moins d'accès
+        publics ni sur les appareils des ammis ou collègues.<br>
+        <h3 id="vueDirVide1">Liste des carnets accessible vide : pas de stockage
+          local et non connecté</h3>
+        Cette vue fait apparaître la liste des carnets mémorisés pour le pseudo
+        courant.<br>
+        Toutefois le stockage local n'a pas été activé (donc aucun carnet n'y
+        figure) et la connexion au serveur n'a pas été demandé : il n'y a par
+        principe aucun carnet accessible.<br>
+        Se connecter par exemple.<br>
+        <h3 id="vueDirVide2">Liste des carnets accessibles vide : pas de
+          stockage local, le serveur est connecté mais il n'y a pas de carnets
+          d'accès public</h3>
+        Cette vue fait apparaître la liste des carnets mémorisés pour le pseudo
+        courant.<br>
+        Toutefois le stockage local n'a pas été activé (donc aucun carnet n'y
+        figure) et la connexion au serveur a été demandée mais sans code PIN ou
+        avec un code PIN incorrect : ne sont donc visibles que les carnets
+        déclarés d'accès public et il n'y en a pas. Aucun carnet n'est
+        accessible.<br>
+        Donner le bon code PIN par exemple.
+        <h3 id="vueDir"> Liste des carnets accessibles</h3>
+        Cette vue fait apparaître la liste des carnets mémorisés pour le pseudo
+        courant.<br>
+        Le tableau comporte trois colonnes :<br>
+        <ol>
+          <li>nom du carnet : ce nom apparaît en vert quand sa clé de cryptage a
+            déjà été saisi et qu'il s'ouvrira directement sur un clic ;</li>
+          <li>son état dans la mémoire locale : vide s'il n'y est pas mémorisé
+            et sinon la date et heure de son dernier changement et depuis quel
+            appareil il a été fait;</li>
+          <li>son état dans la mémoire du serveur: vide s'il n'y est pas
+            mémorisé et sinon la date et heure de son dernier changement et
+            depuis quel appareil il a été fait.</li>
+        </ol>
+        Deux icônes indiquent le cas échéant,<br>
+        <ul>
+          <li>si le <a href="#carnets-proteges">carnet est protégé en écriture</a>;</li>
+          <li>si le <a href="#carnets-publics">carnet a été déclaré d'accès
+              public</a> (lisible sans disposer du code PIN).</li>
+        </ul>
+        Pour ouvrir un carnet, cliquer sur sa ligne.<br>
+        <h3 id="nouveauCarnetL">Création d'un nouveau carnet en local seulement</h3>
+        En appuyant sur ce bouton la boîte de dialogue de création d'un nouveau
+        carnet s'ouvre. Comme le serveur n'est pas connecté ou l'est en lecture
+        seule, le carnet sera créé seulement dans la mémoire locale.<br>
+        <h3 id="nouveauCarnetS">Création d'un nouveau carnet sur le serveur
+          seulement</h3>
+        En appuyant sur ce bouton la boîte de dialogue de création d'un nouveau
+        carnet s'ouvre. Comme le stockage local n'a pas été activé, le carnet
+        sera créé seulement dans la mémoire du serveur.
+        <h3 id="nouveauCarnetSL"> Création d'un nouveau carnet en local et sur
+          le serveur</h3>
+        En appuyant sur ce bouton la boîte de dialogue de création d'un nouveau
+        carnet s'ouvre.Le carnet sera mémorisé en local et sur le serveur.
+        <h3 id="creerNC"> Création d'un nouveau carnet</h3>
+        Cette boîte de dialogue permet de créer un nouveau carnet. Pour celà il
+        faut fournir :<br>
+        <ul>
+          <li>son nom : il ne peut contenir que les lettres majuscules (A à Z)
+            ou minuscules (a - z) non accentuées et des points. Le nom est
+            obligatoire et ne doit pas être celui d'un carnet déjà existant ;</li>
+          <li>sa clé de cryptage de syntaxe libre mais doit avoir au moins 8
+            signes ;</li>
+          <li>la phrase d'aide qui permet de se la rappeler de syntaxe libre
+            mais doit avoir au moins 8 signes.</li>
+        </ul>
+        Par convention si la phrase d'aide est égale à la clé de cryptage (ce
+        n'est plus vraiment un secret), le carnet pourra être ouvert sans avoir
+        à fournir la clé.<br>
+        Ni le nom, ni la clé de cryptage, ni la phrase d'aide ne peuvent être
+        modifiés ultérieurement (toutefois voir "<a href="#cloner">Créer un
+          nouveau carnet par clonage d'un existant</a>" pour contourner cette
+        sécurité).<br>
+        <a href="#carnets">Voir aussi</a>.<br>
+        <h3 id="vueCarnet">Vue d'un carnet : information générale et liste de
+          ses secrets</h3>
+        Rédaction en cours<br>
+        <h3 id="secret1">Créer un nouveau secret</h3>
+        Selon que la mémoire locale a été activée ou non et que le serveur est
+        connecté en écriture (donc avec le bon code PIN), la création d'un
+        nouveau secret s'opère :<br>
+        <ul>
+          <li id="nvsecret1">en mémoire locale seulement (serveur non connecté
+            ou en lecture seule),</li>
+          <li id="nvsecret2">sur le serveur seulement (mémoire locale non
+            activée),</li>
+          <li id="nvsecret3">en local et sur le serveur (mémoire locale activée
+            et serveur connecté avec le bon code PIN).</li>
+        </ul>
+        Le nom d'un nouveau secret peu être n'importe quoi d'un caractère au
+        moins et ne pas être le nom d'un secret déjà existant.<br>
+        Le texte du secret doit comporter au moins un caractère<br>
+        <h3 id="secret2">Modifier le texte d'un secret</h3>
+        <p>Le texte d'un secret peut être modifié, sauf s'il s'agit du secret
+          d'un carnet n'existant que sur le serveur et que celui-ci est en
+          lecture seul (pas de PIN ou PIN incorrect) ou que sa protection contre
+          l'écriture a été positionnée.</p>
+        <p>Si le texte du secret devient vide ceci correspond à une
+          suppression..</p>
+        <p>Le secret est mis à jour,</p>
+        <ul>
+          <li>en local si le stockage local est activé,</li>
+          <li>sur le serveur s'il est connecté et pas en lecture seule,</li>
+          <li>dans les deux cas seulement si le carnet n'est pas protégé contre
+            l'écriture.</li>
+        </ul>
+        <h3 id="proteger">Modifier les conditions d'accès à un carnet :
+          protection contre l'écriture, accès public / privé</h3>
+        La <a href="#carnets-proteges">protection contre l'écriture</a> peut
+        être mise ou enlevée,<br>
+        <ul>
+          <li>en local si le stockage local est activé,</li>
+          <li>sur le serveur si le serveur est connecté et n'est pas en lecture
+            seule (PIN correct).</li>
+        </ul>
+        Un carnet peut être déclaré <a href="#carnets-publics">d'accès public</a>
+        (ou remis à l'accès par défaut privé) : ceci ne concerne que le serveur
+        et ce statut ne peut être changé que si ce dernier n'est pas en lecture
+        seule.<br>
+        <h3 id="supprimer">Supprimer un carnet</h3>
+        La suppression d'un carnet est définitive et tous ses secrets
+        irrémédiablement perdus. Compte tenu du danger, la suppression
+        s'effectue en deux étapes :<br>
+        <ol>
+          <li>mettre le carnet en protection d'écriture,</li>
+          <li>puis plus de 2 minutes après le supprimer,</li>
+        </ol>
+        ceci afin de laisser place au remord tardif et fausse manipulation.<br>
+        La suppression intervient :<br>
+        <ul>
+          <li>en local si le stockage local est activé,</li>
+          <li>sur le serveur si le serveur est connecté et n'est pas en lecture
+            seule (PIN correct).</li>
+        </ul>
+        <h3 id="exporter">Exporter le contenu d'un carnet</h3>
+        Le contenu d'un carnet peut être exporté en clair dans un fichier de
+        texte. Toutefois certains navigateurs ne supportent pas cette
+        possibilité (et il est exclu de renvoyer au serveur un texte en clair
+        pour affichage dans une nouvelle page). Ce fichier s'appelle secrets.txt
+        et est stocké dans le répertoire de téléchargement courant du
+        navigateur.<br>
+        Quand les deux contenus, local et serveur, sont disponibles, c'est celui
+        le plus récent qui est exporté.<br>
+        <h3 id="cloner">Créer un nouveau carnet par clonage d'un existant</h3>
+        Il est possible de dédoubler un carnet, d'en créer un nouveau contenant
+        les mêmes secrets :<br>
+        <ul>
+          <li>le nouveau carnet à un nouveau nom,</li>
+          <li>sa clé de cryptage et sa phrase d'aide sont nouvelles.</li>
+        </ul>
+        Une fois créé le nouveau carnet perd trace de ses origines clonées et se
+        comporte comme les autres. Le clonage intervient en local (si le
+        stockage local est activé) et sur le serveur (s'il est connecté et n'est
+        pas en lecture seule).(voir <a href="#clonage">aussi</a>).<br>
+        <h3 id="saisirCle">Saisir la clé de cryptage d'un carnet</h3>
+        A l'ouverure d'un carnet il faut fournir sa clé de cryptage dans cette
+        boîte de dialogue, sauf si elle a déjà été fournie, soit pour ce carnet
+        soit pour l'un ayant la même clé.<br>
+        La phrase d'aide est supposée aider à retouver cette clé.<br>
+        Dès que la clé est correcte la boîte de dialogue se ferme et le détail
+        du carnet apparaît (pas be soin de "valider" ...). En revanche rien ne
+        bouge tant que ce n'est pas la bonne : le cas échéant annuler cette
+        ouverture (retour à la liste des carnets).<br>
+        <h3> Tous les secrets sont synchronisés</h3>
+        <p>La mémoire locale est activée, le serveur est connecté en écriture.
+          Tous les secrets ont même date / heure de dernière mise à jour et même
+          contenu dans les deux mémoires, aucun n'a lieu d'être synchronisé dans
+          aucun sens. (voir aussi <a href="#synchronisations">Synchronisations</a>).</p>
+        <h3 id="nosync2">Pas de synchronisation possible, le serveur n'est pas
+          connecté</h3>
+        <p>Le serveur n'étant pas connecté, aucune synchronisation ne peut être
+          effectuée entre lui et la mémoire locale.</p>
+        <p>Proposition: se connecter et si la synchronisation vers le serveur
+          est souhaitée, saisir le bon code PIN. (voir aussi <a href="#synchronisations">Synchronisations</a>).</p>
+        <h3 id="nosync3">Pas de synchronisation possible vers le serveur, il est
+          en lecture seule</h3>
+        <p>Le serveur est connecté mais le code PIN n'a pas été saisi ou n'est
+          pas celui enregistré sur le serveur : ce dernier est en conséquence en
+          lecture seule et les synchronisations ne peuvent concerner que le sens
+          serveur vers mémore locale (pour autant qu'il y ait des secrets
+          retardés localement par rapport au serveur).</p>
+        <p>Proposition: si la synchronisation vers le serveur est souhaitée,
+          saisir le bon code PIN. (voir aussi <a href="#synchronisations">Synchronisations</a>).</p>
+        <h3 id="nosync4">Pas de synchronisation possible vers le local, rien
+          n'est mémorisé en local</h3>
+        <p>Le serveur est connecté mais la mémoire locale n'est pas activée,
+          aucune synchronisation vers le local est donc possible. Réfléchir le
+          cas échéant à activer le stockage local (voir <a href="#risqueLocal">les
+            risques</a>).</p>
+        <h3 id="sync3">Synchronisation possible de N secrets du local vers le
+          serveur</h3>
+        <p>Il existe au moins 1 secret qui est plus récent en local que sur le
+          serveur et qui peut être recopié sur le serveur. Appuyer sur le bouton
+          pour effectuer cette opération. (voir aussi <a href="#synchronisations">Synchronisations</a>).</p>
+        <h3 id="sync2">Synchronisation possible de P secrets du serveur vers le
+          local</h3>
+        <p>Il existe au moins 1 secret qui est plus récent sur le serveur qu'en
+          local et qui peut être recopié sur le stockage local. Appuyer sur le
+          bouton pour effectuer cette opération. (voir aussi <a href="#synchronisations">Synchronisations</a>).</p>
+        <h3 id="sync4">Synchronisation possible de N+P secrets entre local et
+          serveur</h3>
+        <p>Il existe au moins 1 secret qui est plus récent en local que sur le
+          serveur et au moins 1 secret qui est plus récent sur le serveur qu'en
+          local. La recopie peut intervenir dans les deux sens selon chaque
+          secret non identique sur le serveur et le local. Appuyer sur le bouton
+          pour effectuer cette opération. (voir aussi <a href="#synchronisations">Synchronisations</a>).</p>
+        <h3 id="nosync1"> </h3>
+        <h1 id="aideVue2"> Aide sur les vues et boîtes de dialogue :
+          administration</h1>
+        <h3 id="vueAdmin">Liste des pseudos enregistrés</h3>
+        Cette vue liste les pseudos enrégistrés. Cliquer sur celui dont on veut
+        voir le détail.<br>
+        Un bouton permet de rafraîchir cette liste : en effet les opérations de
+        création et de suppression d'un pseudo mettent "un certain temps" avant
+        d'être propagées dans les index. Ne pas hésiter à rafraîchir à plusieurs
+        secondes d'intervalle, voire plusieurs fois quand la liste ne reflète
+        pas (encore) la dernière création ou suppression.<br>
+        <h3 id="vueAdminId">Détail d'un pseudo, liste de ses carnets</h3>
+        Pour un pseudo courant sélectionné, les informations sur le carnet et la
+        liste de ses carnets sont donnés.<br>
+        Il est possible depuis les boutons :<br>
+        <ul>
+          <li>de supprimer le pseudo,</li>
+          <li> de changer son code PIN en cas de perte par son proriétaire,</li>
+          <li>de supprimer un des carnets listés en cliquant sur la croix rouge
+            figurant sur la ligne de ce carnet.</li>
+        </ul>
+        <h3 id="creerIdent">Enregistrement d'un nouveau pseudo</h3>
+        Un nouveau pseudo peut être enregistré avec un nom qui ne peut pas être
+        un pseudo existant. Lettre majuscules, miniuscules et points sont
+        autorisés.<br>
+        Son code PIN peut être donné :<br>
+        <ul>
+          <li>soit en clair,</li>
+          <li>soit le propriétaire a communiqué un digest MD5 de son code PIN
+            souhaité (32 chiffres en héxadécimal).</li>
+        </ul>
+        Normalement un pseudo est créé "vide", sans carnets. Toutefois il peut
+        être créé avec une recopie de tous les carnets d'un autre pseudo
+        "source". Les clé de cryptage sont inchangées. Ceci permet de "découper"
+        un pseudo en deux, chacun ayant l'intégralité des carnets et pouvant
+        ensuite supprimer ceux non souhaités. C'est aussi un moyen de "changer
+        de pseudo" en faisant supprimer l'ancien dans un second temps. <br>
+        <h3 id="adminChangerPIN">Changement du code PIN d'écriture pour un
+          pseudo</h3>
+        Son nouveau code PIN peut être donné :<br>
+        <ul>
+          <li>soit en clair,</li>
+          <li>soit le propriétaire a communiqué un digest MD5 de son code PIN
+            souhaité (32 chiffres en héxadécimal).</li>
+        </ul>
+        Ceci ne s'effectue que quand le propriétaire du pseudo est clairement
+        identifié et avec son accord.<br>
+        <h3 id="supprPrefixe">Suppression d'un pseudo</h3>
+        Le pseudo supprimé disparaît complètement, tous ses carnets aussi :
+        aucun remord possible. En cas de doute créer auparavant un pseudo de
+        "sauvegarde" avec un nom dérivé qui ne sera lui supprimé que quelque
+        temps plus tard.<br>
+        <h1 id="faq">Questions Fréquentes</h1>
+        <h3 id="recharger">Comment Recharger une nouvelle version de
+          l'application ?</h3>
+        C'est automatique. La première utilisation depuis un appareil demande
+        une connexion au réseau, l'application étant alors conservée en local
+        sur l'appareil. Ultérieurement en l'absence de connexion à Intenet, la
+        dernière version chargée est utilisée. Quand l'application est lancée et
+        qu'une connexion Internet est disponible sur l'appareil, les fichiers de
+        l'application qui ont été chnagés depuis la version connue localement
+        sont chargés avec leur dernier niveau de mise à jour (seules les
+        différences sont rechargées ce qui est rapide).<br>
+        A tout instant l'aide en ligne fait apparaître la version de
+        l'application en tête.<br>
+        <h3 id="multiid">Qu'est-ce qui empêche plusieurs utilisateurs de choisir
+          le même pseudo ?</h3>
+        Rien. Si quelqu'un appelle l'URL de connexion et prétend être <span class="monospace">jules.cesar</span>
+        personne ne l'en empêche, et plusiseurs personnes différentes peuvent le
+        faire. A ce stade toutes ces personnes peuvent créer et mémoriser leurs
+        carnets sur leurs appareils.<br>
+        Dès que l'une d'entre elles voudra se connecter au serveur pour
+        synchroniser un ou des carnets, son pseudo et son code PIN devront avoir
+        été enregistrés par l'administrateur. Un seul <span class="monospace">jules.cesar</span>
+        peut avoir des carnets sur le serveur, les autres <span class="monospace">jules.cesar</span>
+        locaux ne pourront pas accéder aux carnets du seul <span class="monospace">jules.cesar</span>
+        enregistré par l'administrateur faute de connaître son code PIN.<br>
+        <h3 id="md5">Peut-on découvrir une clé de cryptage depuis son encodage
+          en MD5 ?</h3>
+        Pour découvrir un texte original qui a été encodé en MD5 les hackers et
+        les services secrets emploient deux techniques :<br>
+        <ul>
+          <li>un essai systématique des clés les plus classiques : prénoms,
+            dates de naissance, fleurs, mots de passe classiques comme "secret",
+            et toutes les combinaisons usuelles à 4 chiffres comme 1234 etc.
+            Malheureusement dans 80% des cas ça marche !</li>
+          <li>en cas d'échec et s'ils en ont les moyens de calcul, un procédé de
+            "force brute" essaie toutes les combinaisons de caractères en
+            commençant par les plus courtes.</li>
+        </ul>
+        Une clé un peu longue et non usuelle a très peu de chance d'être
+        retrouvée par force brute, sauf à y passer beaucoup de temps et à y
+        consacrer des quantités énormes de processeurs ... un engagement
+        financier qui demande à être rentabilisé. <br>
+        En cas d'échec il reste aux services secrets à placer un virus sur les
+        appareils pour lire le contenu de la mémoire du navigateur pendant que
+        la clé est frappée (ce qui n'est pas à la portée de n'importe qui) ou à
+        user de procédés physiques convaincants pour faire énoncer la valeur de
+        la clé par son propriétaire (ce qui marche très bien aussi). </div>
+      <h1 id="code-des-erreurs">Code des erreurs</h1>
+      <h3 id="401">401 - Accès réservé à l'administrateur de l'application</h3>
+      <div>Cet accès requiert d'être authentifié par un compte Google (ce qui
+        n'est pas le cas). Ce compte de plus doit être répertorié comme un des
+        administrateurs de l'application. </div>
+      <h3 id="402">402 - Accès réservé à l'administrateur de l'application</h3>
+      <div>Cet accès requiert d'être authentifié par un compte Google (ce qui
+        est le cas) répertorié comme un des administrateurs de l'application (ce
+        qui n'est pas le cas). </div>
+      <h3 id="499">499 - Requête au serveur interrompue par clic</h3>
+      <div>La requête au serveur a été interrompue avant son retour par un clic
+        sur le bouton d'interruption. </div>
+      <div>Si la requête était un enregistrement de données, Il n'est pas
+        possible de savoir si cet enregistrement a eu lieu ou non. Effectuer une
+        relecture plus tard pour s'en assurer. </div>
+      <h3 id="501">501 - Erreur technique du serveur</h3>
+      <div>La transaction de mise à jour a échoué pour cause de conflit avec
+        d'autres tranactions de mise à jour. </div>
+      <div>En renouvellant l'opération dans quelques secondes, le problème
+        devrait disparaître. </div>
+      <h3 id="502">502 - Bug : incompréhension entre navigateur et serveur</h3>
+      <div>Les paramètres envoyés par la requête du navigateur ne sont du type
+        de ceux attendus par le serveur. </div>
+      <h3 id="521">521 - Bug : incompréhension entre navigateur et serveur</h3>
+      <div>Les paramètres de la requête envoyées par le navigateur sont, soit
+        absents, soit d'une syntaxe non reconnu. </div>
+      <h3 id="522">522 - Bug : incompréhension entre navigateur et serveur</h3>
+      <div>Le code de l'opération demandée par le navigateur au serveur lui est
+        inconnu. </div>
+      <h3 id="523">523 - "Bug : incompréhension entre navigateur et serveur</h3>
+      <div>Le paramètre "prefix" (pseudo de l'utilisateur) de la requête envoyée
+        par le navigateur est absent. </div>
+      <h3 id="524">524 - Bug : incompréhension entre navigateur et serveur</h3>
+      <div>Le paramètre "md5Pin" (code PIN encodé de l'utilisateur) de la
+        requête envoyée par le navigateur est absent. </div>
+      <h3 id="525">525 - Bug : incompréhension entre navigateur et serveur</h3>
+      <div>Le paramètre "book" (nom du carnet de secret) de la requête envoyée
+        par le navigateur est absent. </div>
+      <h3 id="526">526 - Ce carnet de secrets n'est pas connu du serveur</h3>
+      <div>Le paramètre "book" (nom du carnet de secret) de la requête envoyée
+        par le navigateur ne correspond pas à un carnet de secrets enregistré :
+        erreur de frappe dans le nom ? </div>
+      <h3 id="527">527 - Ce carnet de secrets n'est pas connu du serveur</h3>
+      Le paramètre "prefix" (pseudo de l'utilisateur) de la requête envoyée par
+      le navigateur ne correspond pas à un pseudo enregistré : erreur de frappe
+      dans le nom ?
+      <h3>528 : Le code PIN donné n'est pas celui enregistré sur le serveur pour
+        ce pseudo</h3>
+      <p>Normalement ceci a été vérifié sur le navigateur. Cette erreur est
+        probablement un bug sauf cas très exceptionnel de deux sessions
+        travaillant, sans concertation, exactement sur les mêmes informations.</p>
+      <h3>529 : Ce carnet existe sur le serveur mais il a une autre clé de
+        cryptage</h3>
+      <p>Normalement ceci a été vérifié sur le navigateur. Cette erreur est
+        probablement un bug sauf cas très exceptionnel de deux sessions
+        travaillant, sans concertation, exactement sur les mêmes informations.</p>
+      <h3>530 : Le code PIN est requis pour effectuer cette opération sur le
+        serveur</h3>
+      <p>Normalement ceci a été vérifié sur le navigateur. Cette erreur est
+        probablement un bug sauf cas très exceptionnel de deux sessions
+        travaillant, sans concertation, exactement sur les mêmes informations.</p>
+      <h3>531 : Ce carnet n'existe pas sur le serveur</h3>
+      <p>Normalement ceci a été vérifié sur le navigateur. Cette erreur est
+        probablement un bug sauf cas très exceptionnel de deux sessions
+        travaillant, sans concertation, exactement sur les mêmes informations.</p>
+      <h3>532 : Le carnet cloné existe déjà (écrasement protégé)</h3>
+      <p>Normalement ceci a été vérifié sur le navigateur. Cette erreur est
+        probablement un bug sauf cas très exceptionnel de deux sessions
+        travaillant, sans concertation, exactement sur les mêmes informations.</p>
+      <h3>533 : Le carnet est déjà protégé en écriture</h3>
+      <p>Normalement ceci a été vérifié sur le navigateur. Cette erreur est
+        probablement un bug sauf cas très exceptionnel de deux sessions
+        travaillant, sans concertation, exactement sur les mêmes informations.</p>
+      <h3>534 : Le carnet ne peut être détruit que lorsqu'il est protégé en
+        écriture</h3>
+      <p>Normalement ceci a été vérifié sur le navigateur. Cette erreur est
+        probablement un bug sauf cas très exceptionnel de deux sessions
+        travaillant, sans concertation, exactement sur les mêmes informations.</p>
+      <h3>535 : Le carnet ne peut être détruit que 2 minutes après sa protection
+        en écriture</h3>
+      <p>Normalement ceci a été vérifié sur le navigateur. Cette erreur est
+        probablement un bug sauf cas très exceptionnel de deux sessions
+        travaillant, sans concertation, exactement sur les mêmes informations.</p>
+      <h3>536 : Sans code PIN seuls les carnets déclarés publics sont
+        accessibles (lecture seule)</h3>
+      <p>Normalement ceci a été vérifié sur le navigateur. Cette erreur est
+        probablement un bug sauf cas très exceptionnel de deux sessions
+        travaillant, sans concertation, exactement sur les mêmes informations.</p>
+      <h3 id="537">537 - Bug : incompréhension entre navigateur et serveur</h3>
+      Le paramètre "newMd5Pin" (nouveau code pin) de la requête envoyée par le
+      navigateur n'a pas été reçu par le serveur ou a une syntaxe incorrecte sur
+      une demande de changement de pin. Cette requête n'aurait pas due être
+      envoyée ainsi.
+      <h3 id="538">538 - Bug : Le pseudo "source" est inconnu du serveur</h3>
+      Un nouveau pseudo est créé avec la recopie des carnets d'un pseudo source
+      qui n'a pas été trouvé. Normalement le navigateur vérifie celà, sauf à ce
+      que deux administrateurs travaillent au même instant sans concertation.
+      <h1 id="admin">Administration des pseudos</h1>
+      <div class="italic">Version : <span id="versionA">???</span></div>
+      <div><br>
+      </div>
+      L'administrateur ne peut effectuer que les 3 opérations ci-dessous et en
+      aucun cas ne peut lire ou mettre à jour les secrets. Ses actions ne
+      concernent que le serveur. Il peut :<br>
+      <ul>
+        <li>enregistrer un nouveau pseudo sur le sur le serveur et le détruire,
+          ce qui supprime tous les carnets de ce propriétaire sur le serveur ;</li>
+        <li>changer le code PIN d'un propriétaire, soit en le donnant en clair,
+          soit de préférence en le donnant dans la forme encryptée MD5 fournie
+          par le propriétaire qui peut ainsi récupérer un accès au serveur pour
+          lequel le code PIN aurait été oublié (l'ancien code PIN étant
+          impossible à retrouver) ;</li>
+        <li>supprimer un carnet dont le contenu aurait été signalé comme
+          délictueux ... encore que comme le contenu n'est accessible qu'à son
+          propriétaire ce caractère n'est guère simple à déterminer. Les
+          autorités judiciaires peuvent toutefois l'exiger et n'ont pas à se
+          justifier des éléments qui leur ont permis de statuer.</li>
+      </ul>
+      <div>
+        <h1 id="tech">Informations techniques</h1>
+        <br>
+        <h3> Sources</h3>
+        Les sources de l’application sont hébergés par Google Project Hosting
+        sous licence GNU GPL v3 (open source):<br>
+        <a target="_blank" href="https://code.google.com/p/secrets-sportes-fr/">https://code.google.com/p/secrets-sportes-fr/</a><br>
+        La lecture est libre mais pas l'écriture qui requiert un Google Account
+        accrédité à être collaborateur. Les versions de source y sont gérées en
+        SVN.<br>
+        L'application est développée sous Eclipse avec le plugin Google App
+        Engine SDK qui permet également de la déployer.<br>
+        <h3>Application locale : browsers et OS supportés</h3>
+        Elle s'exécute dans un navigateur moderne et est écrite en Javascript /
+        HTML / CSS sans déroger au W3C<br>
+        A priori l’application fonctionne sur tous les browsers récents: Chrome,
+        Firefox, Safari (y compris leurs versions sur smartphones).<br>
+        Concernant Internet Explorer l'application ne fonctionne qu'à partir de
+        la version 10.<br>
+        <br>
+        Le plus rapide est Chrome, les Firefox récents étant proches.<br>
+        <br>
+        A priori il n’y a pas de dépendance vis à vis de l’OS car c’est une
+        application Web HTML5 / CSS3 / Javascript (la vraie dépendance est vis à
+        vis du browser).<br>
+        <ul>
+          <li>Windows (a priori depuis XP, à partir de Vista et 7 surement);</li>
+          <li>MasOS: a priori oui mais pas testé (mais Safari sous PC
+            fonctionne);</li>
+          <li>iphone et Android.</li>
+        </ul>
+        <h4> Framework et bibliothèques externes</h4>
+        Deux mises en oeuvre ont été réalisées pour la partie graphique en
+        utuilisant 2 frameworks Javascript:<br>
+        <ul>
+          <li>l'une invoquée depuis /p/app.html est basée sur Polymer : <a target="_blank"
+
+              href="http://www.polymer-project.org/">http://www.polymer-project.org/</a></li>
+          <li>l'une invoquée depuis /a/app.html est basée sur AngularJS : <a target="_blank"
+
+              href="https://angularjs.org/">https://angularjs.org/</a></li>
+        </ul>
+        La logique applicative est commune, seule la couche graphique diffère
+        (mais est visuellement strictement identique). Ceci a été fait à des
+        fins d'expérimentations mais aussi faute de savoir lequel de ces 2
+        frameworks disparaîtra à terme (ou perdra de sa popularité donc de son
+        niveau de maintenance).<br>
+        <br>
+        L'encryptage / decryptage AES en Javascript est celui décrit et fourni
+        ici : <a target="_blank" href="http://www.movable-type.co.uk/scripts/aes.html">http://www.movable-type.co.uk/scripts/aes.html</a><a
+
+          target="_blank"><br>
+        </a>Le PDF est accessible à l'URL : <a target="_blank" href="https://secrets-sportes-fr.appspot.com/AES.pdf">https://secrets-sportes-fr.appspot.com/AES.pdf</a><a
+
+          target="_blank"><br>
+        </a> <br>
+        Le calcul de digest MD5 en Javascript est celui fourni ici : <a target="_blank"
+
+          href="http://www.webtoolkit.info/javascript-md5.html">http://www.webtoolkit.info/javascript-md5.html</a><br>
+        <br>
+        C'est une application simple quand on a suivi le tutorial de AngularJS
+        et celui de Polymer :<br>
+        <ul>
+          <li>1300 lignes de Javascript pour la gestion des données et des
+            échanges avec le serveur;</li>
+          <li>Pour la partie "affichage / interaction" seulement, le code est
+            dédoublé pour AngularJS et Polymer avec des détails de syntaxe qui
+            changent mais une quasi recopie :</li>
+          <ul>
+            <li>800 lignes de HTML (sans compter ce fichier d'aide);</li>
+            <li>700 lignes de CSS;</li>
+            <li>800 lignes de Javascript;</li>
+          </ul>
+          <li>800 de Javascript;</li>
+          <li>9 images;</li>
+          <li>4 fontes.</li>
+        </ul>
+        <h3>Application Serveur</h3>
+        C’est une une application Web (HTTPS) Google App Engine écrite en Java
+        dont le source est localisé au même endroit que ceux de l'application
+        locale. Lire le tutorial de Google App Engine et spécifiquement la
+        section relative au Datastore (qui N'EST PAS du SQL). <br>
+        L'application comporete 9 classes Java pour 1400 lignes de code.<br>
+        <br>
+        Les deux applications totalisent environ 5000 lignes de code.<br>
+        <h3>Administration du serveur</h3>
+        Elle est assurée depuis l'URL : <a target="_blank" href="https://appengine.google.com/dashboard?&amp;app_id=s%7Esecrets-sportes-fr">https://appengine.google.com/dashboard?&amp;app_id=s~secrets-sportes-fr</a><br>
+        L'administration n'est toutefois accessible qu'aux Google Accounts
+        enregistrés en tant qu'administrateur.<br>
+      </div>
+      <div id="encours">Rédaction en cours ...</div>
+      <script>
+	if (window.location.href.indexOf(".html#1") != -1){
+    	var d = document.getElementById("acacher");
+    	d.style.display = "none";
+	}
+    </script> </div>
+  </body>
+</html>

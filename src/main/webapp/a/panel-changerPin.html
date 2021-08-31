@@ -1,0 +1,27 @@
+<div class="panel-bar">Aide&nbsp;<btn-aide ref="'changerPIN'"></btn-aide>
+	<div ng-class="{'btnAnnulerF':idem, 'btnAnnulerA':!idem}" ng-show="session.ident" ng-click="panelOff();"></div>'
+</div><div class="panel-body">
+	<div style="text-align:center">
+		<div ng-class="{'btnTitre':true, 'disabled':disable}" ng-click="changerPIN();">Changement du code PIN du serveur</div>
+	</div>
+	<div>Date de création ou du dernier changement de code PIN :<br> {{session.serveurTime}} - </div>
+	<div class="infobox">Saisie d'un nouveau code PIN autorisant à agir 
+		en écriture sur le serveur pour ce pseudo.<br>Ce code ne doit pas être vide.</div>
+	<div class="label">Code PIN d'écriture sur le serveur :</div>
+	<div class="entree">
+		<input ng-model="nvPIN" type="{{session.enclair ? 'text' : 'password'}}" ng-change="changePIN();">
+		<div class="diagErr" ng-show="!md5PINInput">Code PIN à remplir requis</div>
+		<div class="admin-md5PIN" ng-show="md5PINInput">MD5: {{md5PINInput}}</div>
+		<cb-ec texte="Voir le code PIN en clair" model="session.enclair"></cb-ec>
+	</div>
+	<div class="label">Vérification du code PIN :</div>
+	<div class="entree">
+		<input ng-model="nvPIN2" type="{{session.enclair ? 'text' : 'password'}}" ng-change="changePIN2();" ng-enter="changerPIN()">
+		<div class="diagErr" ng-show="md5PINInput != md5PINInput2">Le code et sa vérification sont différents</div>
+	</div>
+	<div ng-show="session.svIdent">
+		<input class="cb1" type="checkbox" ng-model="svPIN" ng-change="setDisableCP();">
+		<div class="cb1-label">Mémoriser ce code dans cette session</div>
+	</div>
+	<div class="filler"></div>
+</div>

@@ -1,0 +1,87 @@
+<polymer-element name="panel-changerpin" attributes="session">
+<template>
+<link rel="stylesheet" href="$/js/panel.css$" />
+<style>
+</style>
+<div class="panel-bar">Aide&nbsp;<btn-aide ref="changerPIN"></btn-aide>
+	<div class="{{idem ? 'btnAnnulerF' : 'btnAnnulerA'}}" on-click="{{panelOff}}"></div>
+</div>
+<div class="panel-body">
+	<div style="text-align:center">
+		<div class="btnTitre{{disable ? ' disabled':''}}" on-click="{{changerPIN}}">Changement du code PIN du serveur</div>
+	</div>
+	<div>Date de création ou du dernier changement de code PIN :<br> {{session.serveurTime}} - </div>
+	<div class="infobox">Saisie d'un nouveau code PIN autorisant à agir 
+		en écriture sur le serveur pour ce pseudo.<br>Ce code ne doit pas être vide.</div>
+	<div class="label">Code PIN d'écriture sur le serveur :</div>
+	<div class="entree">
+		<input value="{{nvPIN}}" type="{{session.enclair ? 'text' : 'password'}}">
+		<template if="{{!md5PINInput}}"><div class="diagErr">Code PIN à remplir requis</div></template>
+		<template if="{{md5PINInput}}"><div class="admin-md5PIN">MD5: {{md5PINInput}}</div></template>
+		<elt-checkbox texte="Voir le code PIN en clair" data="{{session.enclair}}"></elt-checkbox>
+	</div>
+	<div class="label">Vérification du code PIN :</div>
+	<div class="entree">
+		<input value="{{nvPIN2}}" type="{{session.enclair ? 'text' : 'password'}}">
+		<template if="{{md5PINInput != md5PINInput2}}">
+		<div class="diagErr">Le code et sa vérification sont différents</div>
+		</template>
+	</div>
+	<template if="{{session.svIdent}}">
+		<input class="cb1" type="checkbox" checked="{{svPIN}}" on-change="{{setDisableCP}}">
+		<div class="cb1-label">Mémoriser ce code dans cette session</div>
+	</template>
+	<div class="filler"></div>
+</div>
+</template>
+<script>
+Polymer('panel-changerpin', {
+	observe : {
+		nvPIN : 'changePIN',
+		nvPIN2 : 'changePIN2',
+		svPIN : 'setDisableCP'
+	},
+	ready : function(){
+	},
+	sessionChanged : function(oldValue, newValue){
+		if (newValue.panel == "changerPIN"){
+			this.nvPIN2 = "";
+			this.md5PIN2 = "";
+			this.nvPIN = "";
+			this.md5PIN = "";
+			this.svPIN = Secrets.session.svPIN;
+			this.changePIN();
+		}
+	},
+	setDisableCP : function(){
+  		this.err = !this.md5PINInput || this.md5PINInput != this.md5PINInput2;
+  		this.idem = this.md5PINInput == Secrets.session.md5PIN
+  		&& ((Secrets.session.svIdent && Secrets.session.svPIN == this.svPIN)
+  				|| !Secrets.session.svIdent);
+  		this.disable = this.idem || this.err;
+	},
+	changePIN : function(){
+		var p = this.nvPIN;
+		this.md5PINInput = p ? Util.md5(p) : "";
+		this.setDisableCP();
+	},
+	changePIN2 : function(){
+		var p = this.nvPIN2;
+		this.md5PINInput2 = p ? Util.md5(p) : "";
+		this.setDisableCP();
+	},
+	changerPIN : function() {
+		if (!this.disable) {
+			Serveur.book(function(data){
+				Secrets.panelOff(function(){
+					if (Secrets.session.svIdent)
+						Local.saveIdent(Secrets.session.ident, this.svPIN ? this.md5PINInput : null);
+					Secrets.setIdent(Secrets.session.ident, this.md5PINInput);
+				});
+			}, null, 12, Secrets.session.ident, Secrets.session.md5PIN, null, this.md5PINInput);
+		}
+	},
+	panelOff : function() { Secrets.panelOff(); }
+});
+</script>
+</polymer-element>

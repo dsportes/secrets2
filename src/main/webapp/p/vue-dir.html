@@ -1,0 +1,135 @@
+<polymer-element name="vue-dir" attributes="session dir1">
+<template>
+<style>
+.vertgras {color: green; font-weight: bold; font-size: 1.2rem;}
+.pointer {cursor: pointer;}
+.ilb {display: inline-block;margin-right: 1rem;}
+
+.btnStd {
+	display: inline-block;
+	background: linear-gradient(right, white, rgb(225,225,200));
+	background: -ms-linear-gradient(right, white, rgb(225,225,200));
+	background: -webkit-linear-gradient(right, white, rgb(225,225,200));
+	background: -moz-linear-gradient(right, white, rgb(225,225,200));
+	padding: 0.1rem 0.5rem;
+	font-family: "MaFonteA";
+	font-size: 1.2rem;
+	color: rgb(80,80,80);
+	border-radius: 1.4rem;
+	-webkit-border-radius: 1.4rem;
+	-moz-border-radius: 1.4rem;
+	height: 1.8rem;
+	cursor: pointer;
+	border: 1px solid rgb(150,150,150);
+}
+.btnStd:hover {background: rgb(80,80,80); color: white;}
+
+.archive, .pub {
+	width: 1.8rem;
+	height: 1.8rem;
+	background-position: 50% 50%;
+	background-size: 1.8rem;
+	background-repeat: no-repeat;
+	display: inline-block;
+	margin: 0 0.5rem 0.2rem 0.5rem;
+	vertical-align: middle;
+}
+.archive {background-image: url($/images/archive.png$);}
+.pub {	background-image: url($/images/pub.png$);}
+
+.table2 {display: table; margin: 0.5rem 0; border-collapse:collapse;}
+.table1 {display: table; margin: 1rem 0; border-collapse:collapse; width: 98%;}
+.tr, .tr2 {display: table-row;}
+.tr2:hover {background-color:yellow;}
+.trTitre {display: table-row; background-color: navy; color: white; font-weight: bold;}
+.td {display: table-cell; text-align: center; padding: 0 0.5rem; border: 1px solid rgb(200,200,200);}
+.tdl {display: table-cell; text-align: left; padding: 0 0.5rem;	border: 1px solid rgb(200,200,200);}
+
+.nom-carnet {font-weight: bold; font-size: 1.4rem; min-height: 2rem; vertical-align: middle;}
+.colorgreen {color:green;}
+.colorblack {color:black;}
+</style>
+<div><i>L'adresse de cette page peut être mise en raccourci du navigateur pour un accès direct ultérieur.</i></div>
+	<template if="{{!session.ici && !session.srv}}">
+		<div style="float:right">Aide&nbsp;<btn-aide ref="vueDirVide1"></btn-aide></div>			
+		Pas de carnets accessibles : la mémoire locale n'est pas activée et le serveur n'est pas connecté.
+	</template>
+	<template if="{{!session.ici && session.srvRO && !dir1.length}}">
+		<div>
+			<div style="float:right">Aide&nbsp;<btn-aide ref="vueDirVide2"></btn-aide></div>			
+			Pas de carnets accessibles : <br>
+			-la mémoire locale n'est pas activée,<br>
+			-le serveur est connecté en lecture seulement (pas de PIN correct) et aucun carnet n'y a un accès public.
+		</div>
+	</template>
+	<template if="{{dir1.length > 0 || (session.srv && !session.srvRO) || session.ici}}">
+	<div>
+		<div style="float:right">Aide&nbsp;<btn-aide ref="vueDir"></btn-aide></div>
+		<div><div class='archive'></div>Carnet protégé en écriture</div>
+		<div><div class='pub'></div>Carnet "public" accessible en lecture sur le serveur sans code PIN</div>
+		<div style="font-style:italic">Les carnets dont la clé de cryptage a déjà été donnée sont en vert.<br></div>
+		<div style="font-style:italic">Pour ouvrir un carnet cliquer sur sa ligne.<br></div>
+		<div class="table1">
+			<div class="trTitre">
+				<div class="tdl">Nom du carnet</div>
+				<div class="td">En local</div>
+				<div class="td">Sur le serveur</div>
+			</div>
+			<template if="{{session.ici || (session.srv && !session.srvRO)}}">
+			<div class="tr">
+				<div class="tdl">
+					<template if="{{!(session.srv && !session.srvRO) && session.ici}}">
+					<div class="ilb">
+						<div class="btnStd" on-click="{{nouveauCarnet}}">Nouveau carnet (local) ...</div>
+						<btn-aide ref="nouveauCarnetL"></btn-aide>
+					</div>
+					</template>
+					<template if="{{(session.srv && !session.srvRO) && !session.ici}}">
+					<div class="ilb">
+						<div class="btnStd"  on-click="{{nouveauCarnet}}">Nouveau carnet (serveur) ...</div>
+						<btn-aide ref="nouveauCarnetS"></btn-aide>
+					</div>
+					</template>
+					<template if="{{session.srv && !session.srvRO && session.ici}}">
+					<div class="ilb">
+						<div class="btnStd"  on-click="{{nouveauCarnet}}">Nouveau carnet (local+serveur) ...</div>
+						<btn-aide ref="nouveauCarnetSL"></btn-aide>
+					</div>
+					</template>
+				</div>
+				<div class="td"></div>
+				<div class="td"></div>
+			</div>
+			</template>
+			
+			<template repeat="{{carnet, icarnet in dir1}}">
+				<div class="tr2 pointer" on-click="{{clickCarnet}}" nom-carnet="{{carnet.name}}">
+					<div class="tdl"><div class="nom-carnet color{{carnet.color}}">{{carnet.name}}</div></div>
+					<div class="td">
+						<template if="{{carnet.l && carnet.l.archive}}"><div class='archive'></div></template>
+						<span class="{{carnet.lv ? 'vertgras':''}}">{{carnet.l ? edt(carnet.l.wtt) + edf(carnet.l.wtf) : ''}}</span>
+					</div>
+					<div class="td">
+						<template if="{{carnet.s && carnet.s.archive}}"><div class='archive'></div></template>
+						<template if="{{carnet.s && carnet.s.pub}}"><div class='pub'></div></template>
+						<span class="{{carnet.sv ? 'vertgras':''}}">{{carnet.s ? edt(carnet.s.wtt) + edf(carnet.s.wtf) : ''}}</span>	
+					</div>
+				</div>
+			</template>
+		</div>
+	</div>
+	</template>
+</template>
+<script>
+Polymer('vue-dir', {
+	ready : function(){
+	},
+	edt : Util.edt,
+	edf : Util.edf,
+	nouveauCarnet : function(event, detail, sender){Secrets.panelOn('creerNC');	},
+	clickCarnet : function(event, detail, sender){
+		Secrets.setLocation2(sender.getAttribute("nom-carnet"));
+	}
+});
+</script>
+</polymer-element>

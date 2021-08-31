@@ -1,0 +1,116 @@
+.disabled {opacity: 0.5; filter: alpha(opacity=50);	cursor: default !important;	pointer-events: none;}
+.panel-bar {position: absolute; width: 100%; height: 3rem; padding: 2px;}
+.panel-body {margin-top: 3rem; width: 100%;	height: 100%; padding: 0.5rem; overflow-y: scroll;}
+.filler {border-top: 2px solid white; width: 90%;	margin: 1rem auto; height: 1000px;}
+.label {font-size: 1.2rem; margin: 1rem 0 0.5rem 0; font-weight: bold;}
+.entree {margin: 0 0 0.5rem 1rem;}
+.diag {font-size: 1.0rem; min-height: 1.2rem;}
+.diagErr {font-size: 1.2rem; color: red;}
+
+input:focus, textarea:focus {
+	-moz-box-shadow: 0 0 12px #387bbe;
+	-webkit-box-shadow: 0 0 12px #387bbe;
+	box-shadow: 0 0 12px #387bbe;
+	border: 2px outset #387bbe;
+}
+
+input, textarea {
+	font-family: "MaFonteM";
+	text-shadow: 0px 0px 0px;
+	font-size: 1.5rem;
+	font-weight: normal;
+	font-style: normal;
+	border-radius: 5px;
+	text-align: left;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	width: 95%;
+	padding: 0.2rem 0.5rem;
+	border: 2px inset rgb(150,150,150);
+}
+
+.cb1 {width: 1.8rem; height: 1.8rem; cursor: pointer;}
+.cb1-label {display:block; position: relative; top: -2rem; margin: 0 0 0 2.5rem; font-weight: bold;}
+
+.btnAnnulerA, .btnAnnulerF, .btnAnnulerA2, .btnAnnulerF2, .btnAnnulerF3 {
+	background: linear-gradient(right, white, rgb(225,225,200));
+	background: -ms-linear-gradient(right, white, rgb(225,225,200));
+	background: -webkit-linear-gradient(right, white, rgb(225,225,200));
+	background: -moz-linear-gradient(right, white, rgb(225,225,200));
+	padding: 0.1rem 0.5rem;
+	font-family: "MaFonteA";
+	font-size: 1.3rem;
+	font-weight: bold;
+	color: rgb(80,80,80);
+	border-radius: 1.4rem;
+	-webkit-border-radius: 1.4rem;
+	-moz-border-radius: 1.4rem;
+	height: 2rem;
+	cursor: pointer;
+	border: 2px solid rgb(150,150,150);
+	display: block;
+}
+
+.btnAnnulerF3 {position: absolute; left: -1.2rem; top: 0;}
+.btnAnnulerA, .btnAnnulerF {float: right; margin-right: -1rem;}
+.btnAnnulerA2, .btnAnnulerF2 {float: left; margin-left: -1rem;}
+.btnAnnulerA::after {content: "\20\2716"; color: red;}
+.btnAnnulerA::before {content: "Annuler";}
+.btnAnnulerF::after {content: "\20\2716";}
+.btnAnnulerF::before {content: "Fermer";}
+.btnAnnulerF2::after, .btnAnnulerF3::after {content: "Fermer";}
+.btnAnnulerF2::before, .btnAnnulerF3::before {content: "\2716\20";}
+.btnAnnulerA2::after {content: "Annuler";}
+.btnAnnulerA2::before {content: "\2716\20";	color: red;}
+.btnAnnulerA:hover, .btnAnnulerF:hover, .btnAnnulerA2:hover, .btnAnnulerF2:hover, .btnAnnulerF3:hover {
+	background: rgb(80,80,80);color: white;}
+
+.btnTitre, .btnTitre2 {
+	display: inline-block;
+	background: linear-gradient(right, white, rgb(225,225,200));
+	background: -ms-linear-gradient(right, white, rgb(225,225,200));
+	background: -webkit-linear-gradient(right, white, rgb(225,225,200));
+	background: -moz-linear-gradient(right, white, rgb(225,225,200));
+	padding: 0.3rem 1rem;
+	font-family: "MaFonteA";
+	font-weight: bold;
+	color: rgb(80,80,80);
+	border-radius: 1.8rem;
+	-webkit-border-radius: 1.8rem;
+	-moz-border-radius: 1.8rem;
+	cursor: pointer;
+	border: 2px solid rgb(150,150,150);
+}
+.btnTitre {font-size: 1.8rem; margin: 2rem 1rem 1rem 1rem;}
+.btnTitre2 {font-size: 1.6rem; margin: 0.5rem 1rem;}
+.btnTitre:hover, .btnTitre2:hover {background: rgb(80,80,80); color: white;}
+.btnTitre::before, .btnTitre2::before {content: "\2714\20"; font-weight: bold; font-size: 1.6rem; color: green;}
+
+.btnValider, .btnAnnuler {
+	text-align: center;
+	border: 1px solid black;
+	border-radius: 2rem;
+	-webkit-border-radius: 2rem;
+	-moz-border-radius: 2rem;
+	cursor: pointer;
+	font-weight: bold;
+	font-size: 1.3rem;
+	display: inline-block;
+	margin: 0 1rem;
+	background-color: white;
+	padding: 2px 0.5rem;
+	white-space:nowrap;
+}
+.btnValider::before {content: "\2714\20"; font-weight: bold; font-size: 1.6rem;	color: green;}
+.btnAnnuler::before {content: "\2716\20"; color: red; font-weight: bold; font-size: 1.6rem;}
+.btnValider:hover, .btnAnnuler:hover {background-color: black; color: white;}
+
+.infobox {
+	border: 1px solid rgb(220,220,220);
+	border-radius: 0.5rem;
+	-webkit-border-radius: 0.5rem;
+	-moz-border-radius: 0.5rem;
+	margin: 0.5rem;
+	padding: 0.5rem;
+	background-color: rgb(225,225,200);
+}

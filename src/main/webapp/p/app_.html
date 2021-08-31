@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr" manifest="/p/offline.appcache">
+<head> 
+<title>Secrets on/off line</title>
+<meta charset="utf-8">
+<!-- meta http-equiv="X-UA-Compatible" content="IE=EmulateIE9" -->
+<!-- manifest="/p/offline.appcache"
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+ -->
+<meta name="viewport" content="user-scalable=yes, width=device-width, initial-scale=1.0, maximum-scale=3.0" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<link rel="apple-touch-icon" href="$/images/icon.png$" />
+<link rel="apple-touch-startup-image" href="$/images/startup.png$" />
+<link rel="shortcut icon" type="image/png" href="$/images/icon.png$">
+<link rel="icon" type="image/png" href="$/images/icon.png$">
+
+<script src="$/p/platform.js$"></script>
+
+<script>
+	version_secrets = "$version_secrets$";
+	version_aide = "$version_aide$";
+</script>
+
+<link rel="stylesheet" href="$/js/html.css$" />
+
+<script src="$/p/polymer.js$"></script>
+
+<script src="$/js/aes.js$"></script>
+<script src="$/js/md5.js$"></script>
+<script src="$/js/util.js$"></script> 
+<script src="$/js/secrets.js$"></script>
+
+<script src="$/p/ctrl.js$"></script>
+
+<link rel="import" href="$/p/app-bar.html$">
+<link rel="import" href="$/p/btn-aide.html$">
+<link rel="import" href="$/p/app-message.html$">
+<link rel="import" href="$/p/app-aide.html$">
+<link rel="import" href="$/p/elt-checkbox.html$">
+<link rel="import" href="$/p/app-spinner.html$">
+
+<link rel="import" href="$/p/panel-saisirCle.html$">
+<link rel="import" href="$/p/panel-secret.html$">
+<link rel="import" href="$/p/panel-changerPin.html$">
+<link rel="import" href="$/p/panel-changerIdent.html$">
+<link rel="import" href="$/p/panel-changerIci.html$">
+<link rel="import" href="$/p/panel-creerNC.html$">
+<link rel="import" href="$/p/panel-supprimer.html$">
+<link rel="import" href="$/p/panel-cloner.html$">
+<link rel="import" href="$/p/panel-changerAP.html$">
+<link rel="import" href="$/p/panel-exporter.html$">
+<link rel="import" href="$/p/panel-adminChangerPin.html$">
+<link rel="import" href="$/p/panel-supprPrefixe.html$">
+<link rel="import" href="$/p/panel-creerIdent.html$">
+
+<link rel="import" href="$/p/vue-carnet.html$">
+<link rel="import" href="$/p/vue-dir.html$">
+<link rel="import" href="$/p/vue-admin.html$">
+<link rel="import" href="$/p/vue-adminId.html$">
+
+</head>
+
+<body unresolved touch-action="auto">
+	<div id="accueil">
+		<div class="accueil-B">
+			<div class="accueil-A">mes</div>
+			<div class="accueil-A">petits</div>
+			<div class="accueil-A">secrets</div>
+		</div>
+	</div>
+
+	<a id='save-link' hidden download="secrets.txt"></a>
+
+<polymer-element name="app-secrets" attributes="session carnet dir1 secrets1 nomvue opacity">
+	<template>
+		<style>
+		.opacity0 {opacity:0 !important;}
+		.opacity1 {opacity:1 !important;}
+		.panelleft {left:-60% !important;}
+		.panelleft0 {left:0 !important;}
+		.panelright {right:-60% !important;}
+		.panelright0 {right:0 !important;}
+		</style>
+		<link rel="stylesheet" href="$/js/app.css$" />
+		<template if="{{session.panel}}">
+			<div class="masqueForm"></div>
+		</template>
+		
+		<app-bar session="{{session}}" carnet="{{carnet}}" dir1={{dir1}} secrets1="{{secrets1}}"></app-bar>
+		
+		<div class="corps">
+			<template if="{{nomvue == 'dir'}}">
+				<div class="vue opacity{{opacity}}" style="margin-top:6rem">
+					<vue-dir session="{{session}}" dir1="{{dir1}}"></vue-dir>
+				</div>
+			</template>
+			<template if="{{nomvue == 'carnet'}}">
+				<div class="vue opacity{{opacity}}" style="margin-top:9rem">
+					<vue-carnet session="{{session}}" carnet="{{carnet}}" secrets1="{{secrets1}}"></vue-carnet>
+				</div>
+			</template>
+			<template if="{{nomvue == 'admin'}}">
+				<div class="vue opacity{{opacity}}" style="margin-top:3rem">
+					<vue-admin session="{{session}}" prefixes="{{prefixes}}"></vue-admin>
+				</div>
+			</template>
+			<template if="{{nomvue == 'adminid'}}">
+				<div class="vue opacity{{opacity}}" style="margin-top:3rem">
+					<vue-adminid session="{{session}}" carnets="{{carnets}}"></vue-adminid>
+				</div>
+			</template>
+		</div>
+		
+		<template if="{{session.panel && session.panel != 'secret' && session.panel != 'nvsecret'}}">
+			<div class="panel {{session.panelleft == '0' ? 'panelleft0' : 'panelleft'}}">
+				
+				<template if="{{session.panel == 'changerPIN'}}">
+					<panel-changerpin session="{{session}}"></panel-changerpin>
+				</template>
+				<template if="{{session.panel == 'saisirCle'}}">
+					<panel-saisircle session="{{session}}" carnet="{{carnet}}"></panel-saisircle>
+				</template>
+				<template if="{{session.panel == 'changerIci'}}">
+					<panel-changerici session="{{session}}"></panel-changerici>
+				</template>
+				<template if="{{session.panel == 'changerIdent'}}">
+					<panel-changerident session="{{session}}"></panel-changerident>
+				</template>
+				<template if="{{session.panel == 'creerNC'}}">
+					<panel-creernc session="{{session}}" dir1={{dir1}}></panel-creernc>
+				</template>
+				<template if="{{session.panel == 'changerAP'}}">
+					<panel-changerap session="{{session}}" carnet="{{carnet}}"></panel-changerap>
+				</template>
+				<template if="{{session.panel == 'supprimer'}}">
+					<panel-supprimer session="{{session}}"></panel-supprimer>
+				</template>
+				<template if="{{session.panel == 'cloner'}}">
+					<panel-cloner session="{{session}}" dir1="{{dir1}}"></panel-cloner>
+				</template>
+				<template if="{{session.panel == 'exporter'}}">
+					<panel-exporter session="{{session}}" carnet="{{carnet}}"></panel-exporter>
+				</template>
+				
+				<template if="{{session.panel == 'adminChangerPIN'}}">
+					<panel-adminchangerpin session="{{session}}"></panel-adminchangerpin>
+				</template>
+				<template if="{{session.panel == 'supprPrefixe'}}">
+					<panel-supprprefixe session="{{session}}"></panel-supprprefixe>
+				</template>
+				<template if="{{session.panel == 'creerIdent'}}">
+					<panel-creerident session="{{session}}" prefixes="{{prefixes}}"></panel-creerident>
+				</template>
+				
+			</div>
+		</template>
+		
+		<template if="{{session.panel == 'secret' || session.panel == 'nvsecret'}}">
+			<div class="panel2 {{session.panelleft == '0' ? 'panelright0' : 'panelright'}}">
+				<panel-secret session="{{session}}" carnet="{{carnet}}"></panel-secret>
+			</div>
+		</template>
+		
+	</template>
+	<script>
+		Polymer({
+			ready : function(){
+				this.session = Secrets.session;	
+				this.carnet = Secrets.carnet;
+				this.dir1 = Secrets.dir1;
+				this.secrets1 = Secrets.secrets1;
+				this.prefixes = Secrets.prefixes;
+				this.carnets = Secrets.carnets;
+				this.prefixe = Secrets.prefixe;
+				
+				this.opacity = 0;
+				this.nomvue = "";
+				var self = this;
+				
+				window.addEventListener('secrets-vue', function(e) {
+					e.preventDefault();
+					self.setOp(e.detail);
+				});
+			},
+			setOp : function(vue){
+				if (!this.nomvue){
+					this.nomvue = vue;
+					this.opacity = 1;
+				} else {
+					this.opacity = 0;
+					this.async(function(){
+	 					this.nomvue = vue;
+	 					this.async(function(){
+	 						this.opacity = 1;
+	 					}, null, 50)
+					}, null, 500);
+				}
+			}
+	  	});
+	</script>
+</polymer-element>
+
+<app-secrets></app-secrets>
+<app-message></app-message>
+<app-spinner></app-spinner>
+<app-aide></app-aide>
+
+</body>
+</html>

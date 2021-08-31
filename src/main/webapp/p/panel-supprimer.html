@@ -1,0 +1,73 @@
+<polymer-element name="panel-supprimer" attributes="session">
+<template>
+<link rel="stylesheet" href="$/js/panel.css$" />
+<style>
+.bold {font-weight: bold;}
+.large {font-size: 1.4rem !important;}
+</style>
+<div class="panel-bar">Aide&nbsp;
+	<btn-aide ref="supprimer"></btn-aide>
+	<div class="{{supprLocal || supprSrv ? 'btnAnnulerA' : 'btnAnnulerF'}}" on-click="{{panelOff}}"></div>
+</div>
+<div class="panel-body">
+	<div style="text-align:center">
+		<div class="btnTitre{{!supprLocal && !supprSrv ? ' disabled':''}}" on-click="{{supprimer}}">
+		Suppression DEFINITIVE du carnet</div>
+	</div>
+	<div class='infobox'>Un carnet ne peut être supprimé que si il est "protégé en écriture"
+	depuis plus d'une heure (afin de permettre le remord).<br>
+	Un carnet local ne peut supprimé que s'il est mémorisé en local.<br>
+	Un carnet sur le serveur ne peut être supprimé que si le serveur est connecté 
+	en lecture / écriture (le code PIN aété donné).
+	</div>
+	<div class="bold large">En local :</div>
+	<template if="{{sLoc == 1}}"><div>Pas de mémorisation en local.</div></template>
+	<template if="{{sLoc == 3}}"><div>Le carnet n'existe pas.</div></template>
+	<template if="{{sLoc == 4}}"><div>Le carnet n'est pas protégé en écriture.</div></template>
+	<template if="{{sLoc == 5}}"><div>Le carnet est protégé en écriture depuis {{sLocD}}.</div></template>
+	<template if="{{sLoc == 9}}">
+		<elt-checkbox texte="Supprimer le carnet local" data="{{supprLocal}}"></elt-checkbox>
+	</template>
+	<br>
+	<div class="bold large">Sur le serveur :</div>
+	<template if="{{sSrv == 1}}"><div>Le serveur n'est pas connecté.</div></template>
+	<template if="{{sSrv == 2}}"><div>Le serveur est connecté en lecture seule (pas de code PIN).</div></template>
+	<template if="{{sSrv == 3}}"><div>Le carnet n'existe pas.</div></template>
+	<template if="{{sSrv == 4}}"><div>Le carnet n'est pas protégé en écriture.</div></template>
+	<template if="{{sSrv == 5}}"><div>Le carnet est protégé en écriture depuis {{sSrvD}}.</div></template>
+	<template if="{{sSrv == 9}}">
+		<elt-checkbox texte="Supprimer le carnet sur le serveur" data="{{supprSrv}}"></elt-checkbox>
+	</template>
+	<div class="filler"></div>
+</div>
+</template>
+<script>
+Polymer('panel-supprimer', {
+	observe : {
+	},
+	ready : function(){
+		this.sLoc = 0;
+		this.sLocD = 0;
+		this.sSrv = 0;
+		this.sSrvD = 0;
+		this.supprLoc = false;
+		this.supprSrv = false;
+	},
+	sessionChanged : function(oldValue, newValue){
+		if (newValue.panel == "supprimer"){
+			var sc = Secrets.setSupprCond();
+			this.sLoc = sc.sLoc;
+			this.sLocD = sc.sLocD;
+			this.sSrv = sc.sSrv;
+			this.sSrvD = sc.sSrvD;
+			this.supprLoc = false;
+			this.supprSrv = false;
+		}
+	},
+	supprimer : function(){
+		Secrets.supprimer(this.supprLocal, this.supprSrv, Secrets.panelOff);
+	},
+	panelOff : function() { Secrets.panelOff(); }
+});
+</script>
+</polymer-element>

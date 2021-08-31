@@ -1,0 +1,39 @@
+<div class="panel-bar">Aide&nbsp;<btn-aide ref="'changerIdent'"></btn-aide>
+	<div ng-class="{'btnAnnulerF':idem, 'btnAnnulerA':!idem}" 
+		ng-show="session.ident" ng-click="panelOff();"></div>
+</div>
+<div class="panel-body">
+	<div style="text-align:center">
+		<div ng-class="{'btnTitre':true, 'disabled':disable}" ng-click="changerIdent();">Identification</div>
+	</div>
+	<div class="infobox">Le pseudo peut, au choix,<ul>
+		<li>soit être mémorisé dans ce navigateur pour éviter d'avoir à le saisir ultérieurement,</li>
+		<li>soit y être explicitement effacé pour plus de sécurité.</li>
+	</ul></div>
+	<div class="label">Pseudo :</div>
+	<div class="entree">
+		<input ng-model="nvIdent" type="text" ng-change="changeIdent()">
+		<div ng-show="idDiag" class="diagErr">{{idDiag}}</div>
+		<input class="cb1" type="checkbox" ng-model="svIdent" ng-change="setDisableCI();">
+		<div class="cb1-label">Mémoriser le pseudo dans ce navigateur</div>
+	</div>
+	<div class="infobox">Le code PIN est requis pour écrire sur le serveur 
+		(enregistrement / synchronisation des secrets, création / suppression de carnets, etc.).<br>
+		En cas d'absence ou de divergence avec le code PIN enregistré sur le serveur, 
+		seule la consultation des secrets des carnets "publics" est possible 
+		(à condition d'en connaître la clé de cryptage).<br>
+		Le code peut aussi au choix être mémorisé dans ce navigateur ou y être explicitement effacé.
+	</div>
+	<div class="label">Code PIN d'écriture sur le serveur :</div>
+	<div class="entree">
+		<input ng-model="nvPIN" type="{{session.enclair ? 'text' : 'password'}}" ng-change="changePIN();">
+		<div class="admin-md5PIN" ng-show="md5PINInput">MD5: {{md5PINInput}}</div>
+		<cb-ec texte="Voir le code PIN en clair" model="session.enclair"></cb-ec>
+	</div>
+	<div ng-show="svIdent">
+		<input class="cb1" type="checkbox" ng-model="svPIN" ng-change="setDisableCI();">
+		<div class="cb1-label">Mémoriser le code PIN dans ce navigateur</div>
+	</div>
+	<div class="filler"></div>
+</div>
+

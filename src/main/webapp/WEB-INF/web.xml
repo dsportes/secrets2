@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app>
+
+	<servlet>
+		<servlet-name>Static</servlet-name>
+		<servlet-class>fr.sportes.secrets.StaticServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>Static</servlet-name>
+		<url-pattern>/p/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Static</servlet-name>
+		<url-pattern>/a/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Static</servlet-name>
+		<url-pattern>/js/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Static</servlet-name>
+		<url-pattern>/images/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Static</servlet-name>
+		<url-pattern>/aide/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Static</servlet-name>
+		<url-pattern>/version</url-pattern>
+	</servlet-mapping>
+	
+    <mime-mapping>
+        <extension>appcache</extension>
+        <mime-type>text/cache-manifest</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>css</extension>
+        <mime-type>text/css</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>js</extension>
+        <mime-type>text/javascript</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>png</extension>
+        <mime-type>image/png</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>html</extension>
+        <mime-type>text/html</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>map</extension>
+        <mime-type>application/octet-stream</mime-type>
+    </mime-mapping>
+
+	<servlet>
+		<servlet-name>Secrets</servlet-name>
+		<servlet-class>fr.sportes.secrets.SecretsServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Secrets</servlet-name>
+		<url-pattern>/secrets/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>Admin</servlet-name>
+		<servlet-class>fr.sportes.secrets.AdminServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Admin</servlet-name>
+		<url-pattern>/admin</url-pattern>
+	</servlet-mapping>
+
+    <security-constraint>
+        <web-resource-collection>
+        	<web-resource-name>admin</web-resource-name>       
+            <url-pattern>/admin/*</url-pattern>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <security-constraint>
+        <web-resource-collection>
+        	<web-resource-name>secrets</web-resource-name>       
+            <url-pattern>/secrets/*</url-pattern>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+	<security-constraint>
+        <web-resource-collection>
+            <web-resource-name>admin</web-resource-name>
+            <url-pattern>/admin/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>admin</role-name>
+        </auth-constraint>
+    </security-constraint>
+        
+    <welcome-file-list>  
+        <welcome-file>index.html</welcome-file>  
+   	</welcome-file-list>
+    
+</web-app>

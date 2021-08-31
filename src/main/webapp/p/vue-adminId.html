@@ -1,0 +1,115 @@
+<polymer-element name="vue-adminid" attributes="session carnets">
+<template>
+<style>
+.bold {font-weight: bold;}
+.italic {font-style: italic;}
+
+.back-btn {
+	display: inline-block;
+	cursor: pointer;
+	font-weight: bold;
+	font-size: 1.3rem;
+	font-style: italic;
+	color: blue;
+	text-decoration: none;
+	margin-bottom: 0.5rem;
+}
+.back-btn:hover {background-color: yellow; color: black;}
+.back-btn::before {content: "\25C0\20\20"; font-size: 2.0rem; color: blue;}
+
+.btnStd {
+	display: inline-block;
+	background: linear-gradient(right, white, rgb(225,225,200));
+	background: -ms-linear-gradient(right, white, rgb(225,225,200));
+	background: -webkit-linear-gradient(right, white, rgb(225,225,200));
+	background: -moz-linear-gradient(right, white, rgb(225,225,200));
+	padding: 0.1rem 0.5rem;
+	font-family: "MaFonteA";
+	font-size: 1.2rem;
+	color: rgb(80,80,80);
+	border-radius: 1.4rem;
+	-webkit-border-radius: 1.4rem;
+	-moz-border-radius: 1.4rem;
+	height: 1.8rem;
+	cursor: pointer;
+	border: 1px solid rgb(150,150,150);
+}
+.btnStd:hover {background: rgb(80,80,80); color: white;}
+.admin-check {text-align: center;}
+.admin-check::before {content: "\20\2714\20"; font-weight: bold; font-size: 1.4rem; color: black;}
+
+.admin-supprimer {
+	text-align: center;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	padding: 0.2rem 0.5rem;
+	cursor: pointer;
+	border: 1px solid black;
+	margin: 0.2rem auto;
+	width: 2rem;
+}
+.admin-supprimer:hover {background-color: rgb(100,100,100);}
+.admin-supprimer::before {content: "\20\2716\20"; font-weight: bold; font-size: 1.4rem; color: red;}
+
+.table1 {display: table; margin: 1rem 0; border-collapse:collapse; width: 98%;}
+.tr, .tr2 {display: table-row;}
+.tr2:hover {background-color:yellow;}
+.trTitre {display: table-row; background-color: navy; color: white; font-weight: bold;}
+.td {display: table-cell; text-align: center; padding: 0 0.5rem; border: 1px solid rgb(200,200,200);}
+.tdl {display: table-cell; text-align: left; padding: 0 0.5rem;	border: 1px solid rgb(200,200,200);}
+
+.nom-carnet {font-weight: bold; font-size: 1.4rem; min-height: 2rem; vertical-align: middle;}
+
+</style>
+<div style="float:right">Aide&nbsp;<btn-aide ref="vueAdminId"></btn-aide></div>			
+<div class="back-btn" on-click="{{backIdents}}">Retour à la liste des peudos</div>
+
+<template if="{{session.md5PIN}}">
+	<div><span class="bold italic">Créé le : </span>{{session.time}}</div>
+	<div><span class="bold italic">Pin : </span>{{session.md5PIN}}</div>
+	<div style="text-align:center;margin:1rem 0">
+		<div class="btnStd" on-click="{{editerPIN}}">Changer le code PIN ...</div>
+		<div class="btnStd" on-click="{{supprPrefixe}}">Supprimer définitivement ...</div>
+	</div>
+</template>
+<template if="{{!session.md5PIN}}"><div class="italic">Chargement en cours ...</div></template>
+<template if="{{carnets.length == 0 && session.md5PIN}}"><div><b><i>Aucun carnet enregistré.</i></b></div></template>
+
+<template if="{{carnets.length > 0 && session.md5PIN}}">
+<div class="table1">
+	<div class="trTitre">
+		<div class="td">Nom du carnet</div>
+		<div class="td">Archive</div>
+		<div class="td">Public</div>
+		<div class="td">Création</div>
+		<div class="td">Dernière lecture</div>
+		<div class="td">Dernière mise à jour</div>
+		<div class="td">Supprimer</div>
+	</div>
+	<template repeat="{{carnet in carnets}}">
+	<div  class="tr">
+		<div class="td nom-carnet">{{carnet.name}}</div>
+		<div class="td"><div class="{{carnet.archive ? 'admin-check':''}}"></div></div>
+		<div class="td"><div class="{{carnet.pub ? 'admin-check':''}}"></div></div>
+		<div class="td">{{edt(carnet.crt) + edf(carnet.crf)}}</div>
+		<div class="td">{{edt(carnet.rdt) + edf(carnet.rdf)}}</div>
+		<div class="td">{{edt(carnet.wtt) + edf(carnet.wtf)}}</div>
+		<div class="td"><div class="admin-supprimer" carnet-name="{{carnet.name}}" on-click="{{supprCarnet}}"></div></div>
+	</div>
+	</template>
+</div>
+</template>
+</template>
+<script>
+Polymer('vue-adminid', {
+	ready : function(){	},
+	edt : Util.edt,
+	edf : Util.edf,
+	backIdents : Secrets.setLocationA,
+	editerPIN : function(event, detail, sender){ Secrets.panelOn("adminChangerPIN");},
+	supprPrefixe : function(event, detail, sender){ Secrets.panelOn("supprPrefixe");},
+	supprCarnet : function(event, detail, sender){ Serveur.supprCarnet(sender.getAttribute("carnet-name")); }
+});
+</script>
+</polymer-element>

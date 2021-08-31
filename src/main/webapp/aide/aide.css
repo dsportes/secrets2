@@ -1,0 +1,104 @@
+html {font-size: 65%;}
+
+@font-face {font-family: "MaFonteA"; src: url("/fonts/RobotoSlab-Regular.ttf");}
+@font-face {font-family: "MaFonteA"; src: url("/fonts/RobotoSlab-Bold.ttf"); font-weight: bold;}
+@font-face {font-family: "MaFonteM"; src: url("/fonts/AnonymousPro.ttf");}
+@font-face {font-family: "MaFonteT"; src: url("/fonts/NixieOne-Regular.ttf");}
+
+.monospace {font-family: "MaFonteM";font-size: 1.4rem;color:navy}
+.italic {font-style: italic;}
+.bold {font-weight: bold;}
+.large {font-size: 1.4rem;}
+.petite {font-size: 1.0rem;}
+
+body {
+	overflow-y: scroll;
+	overflow-x: auto;
+	margin: 3rem 0.5rem !important;
+	font-family: "MaFonteA", Arial, sans-serif;
+	text-shadow: 0px 0px 0px;
+	font-size: 1.2rem;
+	font-weight: normal;
+	font-style: normal;
+}
+
+div, p, a {font-size: 1.2rem; font-family: "MaFonteA";}
+
+h1 {
+	font-family: "MaFonteT";
+	margin: 10rem 0 1rem 0;
+	font-size: 2rem;
+	font-weight: bold;
+	color: white;
+	padding: 1rem 0;
+	background-color: navy;
+	text-align: center;
+}
+
+.h0 {
+	font-family: "MaFonteT";
+	margin: 0 0 1rem 0;
+	font-size: 2rem;
+	font-weight: bold;
+	color: white;
+	padding: 1rem 0;
+	background-color: navy;
+	text-align: center;
+}
+
+h2 {
+	font-family: "MaFonteT";
+	border-top: 2px solid navy;
+	margin: 2rem 0 1rem 0;
+	font-size: 1.6rem;
+	font-weight: bold;
+}
+
+h3 {
+	font-family: "MaFonteT";
+	border-top: 1px solid navy;
+	margin: 2rem 0 1rem 0;
+	font-size: 1.4rem;
+	font-weight: bold;
+	font-style: italic;
+}
+
+#encours {
+	margin: 1000px 0;
+	text-align: center;
+	font-size: 1.4rem;
+	font-weight: bold;
+	font-style: italic;
+}
+
+.back, .forward, .manuel {
+	position: fixed;
+	top: 2px;
+	width: 6rem;
+	font-size: 1.4rem;
+	color: blue;
+	text-decoration: underline;
+	background-color: white;
+	padding: 0.2rem 0.5rem;
+	cursor: pointer;
+	text-align: center;
+	z-index: 3;
+}
+.back {right: 8rem;}
+.forward {right: 0.5rem;}
+
+.manuel {
+	position: fixed;
+	top: 2px;
+	width: 14rem;
+	font-size: 1.4rem;
+	color: blue;
+	text-decoration: underline;
+	background-color: white;
+	padding: 0.2rem 0.5rem;
+	cursor: pointer;
+	text-align: center;
+	left: 6rem;
+	z-index: 2;
+}
+.aManuel {font-size: 1.4rem;}

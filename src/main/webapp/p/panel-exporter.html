@@ -1,0 +1,49 @@
+<polymer-element name="panel-exporter" attributes="session carnet">
+<template>
+<link rel="stylesheet" href="$/js/panel.css$" />
+<style>
+</style>
+<div class="panel-bar">Aide&nbsp;
+	<btn-aide ref="exporter"></btn-aide>
+	<div class="btnAnnulerA" on-click="{{panelOff}}"></div>
+</div>
+<div class="panel-body">
+	<div class='infobox'>Les secrets sont exprimés en clair dans un fichier de texte.<br>
+	Selon qu'ils sont mémorisés en local et/ou sur le serveur, l'export peut concerner le contenu en local 
+	ou celui sur le serveur.</div>
+	<div style="text-align:center">
+		<template if="{{carnet.courant.egaux}}"><div class="btnTitre" on-click="{{exporter0}}">
+			Export sur "secrets.txt" du contenu du carnet (identique en local et sur le serveur)</div></template>
+		<template if="{{!carnet.courant.egaux && exportLocal}}"><div class="btnTitre" on-click="{{exporter0}}"> 
+			Export sur "secrets.txt" du contenu du carnet mémorisé en LOCAL</div></template>
+		<template if="{{!carnet.courant.egaux && exportSrv}}"><div class="btnTitre" on-click="{{exporter1}}">
+			Export sur "secrets.txt" du contenu du carnet mémorisé sur le SERVEUR.</div></template>
+	</div>
+	<div class="filler"></div>
+</div>
+</template>
+<script>
+Polymer('panel-exporter', {
+	observe : {	},
+	ready : function(){ 
+		this.exportLocal = false;
+		this.exportSrv = false;
+	},
+	sessionChanged : function(oldValue, newValue){
+		if (newValue.panel == "exporter"){
+			var c = this.carnet.courant;
+			if (c.l && c.s){
+				this.exportLocal = true;
+				this.exportSrv = !c.egaux;
+			} else {
+				this.exportLocal = c.l ;
+				this.exportSrv = c.s ;
+			}
+		}
+	},
+	exporter0 : function(event, detail, sender){ Secrets.exporter(0, Secrets.panelOff);	},
+	exporter1 : function(event, detail, sender){ Secrets.exporter(1, Secrets.panelOff);	},
+	panelOff : function() { Secrets.panelOff(); }
+});
+</script>
+</polymer-element>

@@ -1,0 +1,59 @@
+<polymer-element name="panel-adminchangerpin" attributes="session prefixes prefixe">
+<template>
+<link rel="stylesheet" href="$/js/panel.css$" />
+<style>
+</style>
+<div class="panel-bar">Aide&nbsp;<btn-aide ref="adminChangerPIN"></btn-aide>
+	<div class="{{idem ? 'btnAnnulerF' : 'btnAnnulerA'}}" on-click="{{panelOff}}"></div>
+</div>
+<div class="panel-body">
+	<div style="text-align:center">
+		<div class="btnTitre{{disable ? ' disabled':''}}" on-click="{{changerPIN}}">
+		Enregistrer le nouveau code PIN d'écriture</div>
+	</div>
+	<div class="infobox">Saisie d'un nouveau code PIN autorisant à agir 
+		en écriture sur le serveur pour ce pseudo.<br>Ce code ne doit pas être vide.</div>
+	<div class="label">Nouveau code PIN d'écriture :</div>
+	<div class="entree">
+		<input value="{{nvPIN2}}" type="{{session.enclair ? 'text' : 'password'}}">
+		<template if="{{!md5PIN2}}"><div class="diag">Un code PIN est obligatoire (ou son MD5 : 32 caractères hexa (0-9 a-f))</div></template>
+		<template if="{{md5PIN2}}"><div class="md5PIN">MD5: {{md5PIN2}}</div></template>
+		<elt-checkbox texte="Voir le code PIN en clair" data="{{session.enclair}}"></elt-checkbox>
+	</div>
+	<div class="filler"></div>
+</div>
+</template>
+<script>
+Polymer('panel-adminchangerpin', {
+	observe : {
+		nvPIN2 : 'changePIN',
+	},
+	ready : function(){
+	},
+	sessionChanged : function(oldValue, newValue){
+		if (newValue.panel == "adminChangerPIN"){
+			this.nvPIN2 = "";
+			this.md5PIN2 = "";
+			this.changePIN();
+		}
+	},
+	changePIN : function(){
+		var p = this.nvPIN2;
+		if (p)
+			this.md5PIN2 = p.length == 32 && p.match(Secrets.regExpHexa) ? p : Util.md5(p);
+		else
+			this.md5PIN2 = "";
+		this.disable = !this.md5PIN2;
+	},
+	changerPIN : function() {
+		if (!this.disable) {
+			Serveur.admin(function(data){
+				Secrets.messageShow("Code PIN de [" + Secrets.session.ident + "] changé avec succès", true);
+				Secrets.panelOff();
+			}, null, 2, Secrets.session.ident, this.md5PIN2);
+		}
+	},
+	panelOff : function() { Secrets.panelOff(); }
+});
+</script>
+</polymer-element>

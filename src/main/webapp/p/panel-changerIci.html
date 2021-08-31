@@ -1,0 +1,89 @@
+<polymer-element name="panel-changerici" attributes="session">
+<template>
+<link rel="stylesheet" href="$/js/panel.css$" />
+<style>
+</style>
+<div class="panel-bar">Aide&nbsp;
+	<template if="{{session.ici}}"><btn-aide ref="changerIci1"></btn-aide></template>
+	<template if="{{!session.ici}}"><btn-aide ref="changerIci2"></btn-aide></template>
+	<template if="{{session.ident}}">
+		<div class="{{idem ? 'btnAnnulerF' : 'btnAnnulerA'}}" on-click="{{panelOff}}"></div>
+	</template>
+</div>
+<div class="panel-body">
+	<div style="text-align:center">
+		<template if="{{session.ici}}">
+		<div class="btnTitre{{disable ? ' disabled':''}}" 
+			on-click="{{changerIci}}">Changer le nom du stockage local</div>
+		</template>
+		<template if="{{!session.ici}}">
+		<div class="btnTitre{{disable ? ' disabled':''}}"
+			on-click="{{changerIci}}">Activer le stockage local</div>
+		</template>
+	</div>
+	<div class="infobox">Si cette session du navigateur a un risque 
+		d'être ouverte par quelqu'un d'autre voir ici&nbsp;
+		<btn-aide ref="risqueLocal"></btn-aide>
+		&nbsp;les risques encourrus en ayant un stocakge local.<br>
+		Le nom permet de voir pour les principales interventions effectuées sur les secrets et les carnets, 
+		en plus de la date et l'heure, d'où elles ont été faites.
+	</div>
+	<div class="label">Nom du stockage :</div>
+	<div class="entree">
+		<input value="{{nvIci}}" type="text">
+		<template if="{{idDiag}}"><div class="diagErr">{{idDiag}}</div></template>
+	</div>
+	<template if="{{session.ici}}">
+		<div style="text-align:center">
+			<div class="btnTitre" on-click="{{resetIci}}">Désactiver le stockage local</div>
+		</div>
+		<div class="infobox">Cette opération est définitive.<br>
+			Tous les carnets de tous pseudos seront supprimés sans possibilité de les 
+			retrouver. Seuls ceux mémorisés aussi sur le serveur seront accessibles.
+		</div>
+	</template>
+	<div class="filler"></div>
+</div>
+</template>
+<script>
+Polymer('panel-changerici', {
+	observe : {
+		nvIci : 'changeIci'
+	},
+	ready : function(){
+		this.nvIci = "";
+	},
+	sessionChanged : function(oldValue, newValue){
+		if (newValue.panel == "changerIci"){
+			this.nvIci = Secrets.session.ici;
+		  if (Secrets.session.ici)
+			  this.changeIci();
+		}
+	},
+	changeIci : function(){
+		  this.idDiag = "";
+		  if (!this.nvIci) {
+			  this.idDiag = "Un nom est requis (16 lettres majuscules / minuscules (a-z), " 
+				  + "chiffres, point, tiret, slash seulement)";
+		  } else {
+			  if (!this.nvIci.match(Secrets.regExpIci) || this.nvIci.length > 16)
+				  this.idDiag = "Un nom ne peut contenir que des lettres majuscules / minuscules (a-z), "
+					  + "des chiffres et des point, tiret, slash (16 au plus)";
+		  }
+		  this.idem = this.nvIci == Secrets.session.ici;
+		  this.disable = this.idem || this.idDiag;
+	},
+	changerIci : function() {
+		  Secrets.setIci(this.nvIci);
+		  Secrets.panelOff();
+	},
+	resetIci : function() {
+		  var b = window.confirm("Attention : confirmer l'effacement du stockage local ou annuler.");
+		  if (b)
+			  Secrets.setIci("");
+		  $scope.panelOff();
+	},
+	panelOff : function() { Secrets.panelOff(); }
+});
+</script>
+</polymer-element>

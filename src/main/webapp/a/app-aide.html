@@ -1,0 +1,5 @@
+<div class="aide" ng-show="aideRef || aideTexte" ng-style="{'right':aideRight}">
+	<div class="btnAnnulerF3" ng-click="fermerAide()"></div>
+	<iframe class="aideIframe" ng-show="aideRef"></iframe>
+	<div class="aideIframe" ng-show="aideTexte">{{aideTexte}}></div>
+</div>

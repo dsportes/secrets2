@@ -1,0 +1,27 @@
+<polymer-element name="panel-supprprefixe" attributes="session prefixes prefixe">
+<template>
+<link rel="stylesheet" href="$/js/panel.css$" />
+<style>
+.rouge {margin: 1rem; color: red; font-weight: bold; font-size: 1.4rem;}
+</style>
+<div class="panel-bar">Aide&nbsp;<btn-aide ref="supprPrefixe"></btn-aide>
+</div>
+<div class="panel-body">
+	<div style="margin:1rem;text-align:center">
+		<div class="btnValider" on-click="{{supprPrefixe}}">Confirmer</div>
+		<div class="btnAnnuler" on-click="{{panelOff}}">Annuler</div>
+	</div>
+	<div class="rouge">Cette opération est définitive, plus aucun carnet de 
+		secrets n'existeront pour ce pseudo.<br>Confirmer ou annuler.</div>
+	<div class="filler"></div>
+</div>
+</template>
+<script>
+Polymer('panel-supprprefixe', {
+	observe : {},
+	ready : function(){},
+	supprPrefixe : Serveur.supprPrefixe,
+	panelOff : function() { Secrets.panelOff(); }
+});
+</script>
+</polymer-element>

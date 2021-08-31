@@ -1,0 +1,117 @@
+<polymer-element name="panel-creerident" attributes="session prefixes">
+<template>
+<link rel="stylesheet" href="$/js/panel.css$" />
+<style>
+</style>
+<div class="panel-bar">Aide&nbsp;<btn-aide ref="creerIdent"></btn-aide>
+	<div class="{{idem ? 'btnAnnulerF' : 'btnAnnulerA'}}" on-click="{{panelOff}}"></div>
+</div>
+<div class="panel-body">
+	<div style="text-align:center">
+		<div class="btnTitre{{disable ? ' disabled':''}}" on-click="{{creerIdent}}">
+		Enregistrer un nouveau pseudo</div>
+	</div>
+	<div class="infobox">Le nouveau pseudo enregistré peut mettre un certain temps
+	à apparaître dans la liste. Rafraîchir celle-ci régulièrement jusqu'à son apparition.</div>
+	<div class="label">Pseudo :</div>
+	<div class="entree">
+		<input value="{{nvIdent}}" type="text">
+		<div class="diag{{idDiagErr ? ' diagErr':''">{{idDiag}}</div>
+	</div>
+	<div class="label">Code PIN d'écriture :</div>
+	<div class="entree">
+		<input value="{{nvPIN}}" type="{{session.enclair ? 'text' : 'password'}}">
+		<template if="{{!md5PIN}}">
+			<div class="diagErr">Un code PIN est obligatoire (ou son MD5 : 32 caractères hexa (0-9 a-f))</div>
+		</template>
+		<template if="{{md5PIN}}"><div class="md5PIN">MD5: {{md5PIN}}</div></template>
+		<elt-checkbox texte="Voir le code PIN en clair" data="{{session.enclair}}"></elt-checkbox>
+	</div>
+	<div class="infobox">Le pseudo "source" est celui dont les carnets sont recopiés à la création du nouveau pseudo<br>
+	Il est facultaif et ne sert qu'à permettre de dédoubler un pseudo existant.</div>
+	<div class="label">Pseudo SOURCE :</div>
+	<div class="entree">
+		<input value="{{source}}" type="text">
+		<div class="diagErr">{{idDiag2}}</div>
+	</div>
+	
+	<div class="filler"></div>
+</div>
+</template>
+<script>
+Polymer('panel-creerident', {
+	observe : {
+		nvIdent : 'changeCreer',
+		source : 'changeSource',
+		nvPIN : 'changeCreer'
+	},
+	ready : function(){ },
+	sessionChanged : function(oldValue, newValue){
+		if (newValue.panel == "creerIdent"){
+			this.nvIdent = "";
+			this.nvPIN = "";
+			this.md5PIN = "";
+			this.changeCreer();
+		}
+	},
+	setDisableACI : function(){
+		this.idem = !this.nvIdent;
+		this.disable = this.idem || !this.md5PIN || this.idDiag || this.idDiag2;
+	},
+	changeSource : function(){
+		if (this.source){
+			this.idDiag2 = "Pseudo source inconnu";
+			for(var i = 0, x = null; x = this.prefixes[i]; i++){
+				if (x.name == this.source){
+					this.idDiag2 = "";
+					break
+				}
+			}
+		} else
+			this.idDiag2 = "";
+		this.setDisableACI();
+	},
+	changeCreer : function(){
+		var id = this.nvIdent;
+		if (!id) {
+			this.idDiagErr = false;
+			this.idDiag = "Un pseudo est requis (lettres majuscules / minuscules, chiffres, points seulement)";
+		} else {
+			if (!id.match(Secrets.regExpId)) {
+				this.idDiagErr = true;
+				this.idDiag = "Un pseudo ne peut contenir que des lettres majuscules / minuscules, des chiffres et des points";
+			} else {
+				var exist = false;
+				for(var i = 0, x = null; x = this.prefixes[i]; i++)
+					if (x.name == id) exist = true;
+				if (exist){
+					this.idDiagErr = true;
+					this.idDiag = "Ce pseudo existe déjà";						
+				} else {
+					this.idDiagErr = false;
+					this.idDiag = "";
+				}
+			}
+		}
+		var p = this.nvPIN;
+		if (p)
+			this.md5PIN = p.length == 32 && p.match(Secrets.regExpHexa) ? p : Util.md5(p);
+		else
+			this.md5PIN = "";
+		this.setDisableACI();
+	},
+	creerIdent : function() {
+		if (!this.disable) {
+			Serveur.admin(function(data){
+				Secrets.panelOff();
+				Secrets.messageShow("Nouveau pseudo [" + this.nvIdent + "] enregistré avec succès", true);
+				setTimeout(function(){
+					Serveur.listerIdents();
+				}, 500)
+			}, null, 2, this.nvIdent, this.md5PIN, null, this.source);
+		}
+	},
+	panelOff : function() { Secrets.panelOff(); }
+});
+</script>
+</polymer-element>

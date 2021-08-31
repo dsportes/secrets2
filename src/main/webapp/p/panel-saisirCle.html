@@ -1,0 +1,54 @@
+<polymer-element name="panel-saisircle" attributes="session carnet">
+<template>
+<link rel="stylesheet" href="$/js/panel.css$" />
+<style>
+</style>
+
+<div class="panel-bar">Aide&nbsp;
+	<btn-aide ref="saisirCle"></btn-aide>
+	<div class="btnAnnulerA" on-click="{{fermerCle}}"></div>
+</div>
+<div class="panel-body">
+	<div class="infobox">Donner la clé de cryptage pour accéder aux secrets du carnet.</div>
+	<template if="{{carnet.phrase}}">
+	<div><br>Phrase d'aide : <span class="bold italic">{{carnet.phrase}}</span><br></div>
+	</template>
+	<div class="label">Clé de cryptage :</div>
+	<div class="entree">
+		<input value="{{ncCle}}" type="{{session.enclair ? 'text' : 'password'}}">
+	</div>
+	<elt-checkbox texte="Voir la clé en clair" data='session.enclair'></elt-checkbox>
+	<div class="filler"></div>
+</div>
+</template>
+<script>
+Polymer('panel-saisircle', {
+	observe : {
+		ncCle : 'testCle'
+	},
+	ready : function(){
+		this.ncCle = "";
+	},
+	sessionChanged : function(oldValue, newValue){
+		if (newValue.panel == "saisirCle"){
+			  this.ncCle = "";
+		}
+	},
+	fermerCle : function() {
+		Secrets.panelOff(function(){ 
+			Secrets.setLocation1(); 
+		});
+	},
+	testCle : function(){
+		var c = Util.md5(this.ncCle);
+		if (this.carnet.courant.md5Key == c) {
+			this.carnet.cle = this.ncCle;
+			Secrets.cles[c] = this.carnet.cle;
+			Secrets.loadDir1();
+			Secrets.panelOff();
+		} else
+			this.carnet.cle = null;
+	}
+});
+</script>
+</polymer-element>

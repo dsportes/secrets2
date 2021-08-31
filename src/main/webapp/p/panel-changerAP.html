@@ -1,0 +1,65 @@
+<polymer-element name="panel-changerap" attributes="session carnet">
+<template>
+<link rel="stylesheet" href="$/js/panel.css$" />
+<style>
+</style>
+<div class="panel-bar">Aide&nbsp;
+	<btn-aide ref="proteger"></btn-aide>
+	<div class="{{idem ? 'btnAnnulerF' : 'btnAnnulerA'}}" on-click="{{panelOff}}"></div>
+</div>
+<div class="panel-body">
+	<div style="text-align:center">
+		<div class="btnTitre{{disable ? ' disabled':''}}" on-click="{{changerAP}}">
+		Mettre à jour les protections d'accès</div>
+	</div>
+	<div class="infobox">La protection contre l'écriture interdit la mise à jour du carnet et sa synchronisation.
+	Typiquement ceci permet de mettre un carnet de secrets en "archive".</div>
+	<div>
+		<input class='cb1' type='checkbox' checked='{{nvArch}}' on-change="{{setDisableAP}}">
+		<div class='cb1-label'>protection contre l'écriture</div>
+	</div>
+	<template if="{{session.srv && !session.srvRO && carnet.courant.s}}">
+		<div class="infobox">Donner un droit d'accès "public" à un carnet sur le serveur la lecture des carnets publics est possible
+		permet de le lire sans avoir à donner le code PIN d'écriture 
+		mais requiert toujours de connaître la clé de cryptage.<br>
+		Si le carnet a un droit d'accès "privé" (par défaut), le code PIN d'écriture est requis, même pour une simple lecture.
+		</div>
+		<div>
+			<input class='cb1' type='checkbox'checked='{{nvPub}}' on-change="{{setDisableAP}}">
+			<div class='cb1-label'>accès public</div>
+		</div>
+	</template>
+	<div class="filler"></div>
+</div>
+</template>
+<script>
+Polymer('panel-changerap', {
+	observe : {
+	},
+	ready : function(){
+	},
+	sessionChanged : function(oldValue, newValue){
+		if (newValue.panel == "changerAP"){
+			var c = Secrets.carnet.courant;
+			var s = Secrets.session;
+			if (!(c.s && (s.srv && !s.srvRO)) && !c.l)
+				return;
+			this.source = c.s && (s.srv && !s.srvRO) ? c.s : c.l;
+			this.nvArch = c.s && (s.srv && !s.srvRO) ? c.s.archive : c.l.archive;
+			this.nvPub = c.s && (s.srv && !s.srvRO) ? c.s.pub : false;
+			this.setDisableAP();
+		}
+	},
+	setDisableAP : function(){
+		this.idem = this.nvArch == this.source.archive && 
+		(!Secrets.carnet.courant.s || (Secrets.carnet.courant.s && this.nvPub == Secrets.carnet.courant.s.pub));
+		this.disable = this.idem;
+	},
+	changerAP : function() {
+		if (!this.disable) 
+			Secrets.changerAP(this.nvArch, this.nvPub, Secrets.panelOff);
+	},
+	panelOff : function() { Secrets.panelOff(); }
+});
+</script>
+</polymer-element>

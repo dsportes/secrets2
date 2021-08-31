@@ -1,0 +1,279 @@
+<polymer-element name="vue-carnet" attributes="session carnet secrets1">
+<template>
+<style>
+.disabled {opacity: 0.5; filter: alpha(opacity=50);	cursor: default !important;	pointer-events: none;}
+.italic {font-style: italic;}
+.large {font-size: 1.4rem !important;}
+.ilb {display: inline-block;margin-right: 1rem;}
+.talc {text-align: center;}
+.rouge {margin: 1rem; color: red; font-weight: bold; font-size: 1.4rem;}
+.vertgras {color: green; font-weight: bold; font-size: 1.2rem;}
+.pointer {cursor: pointer;}
+
+.nom-carnet {font-weight: bold; font-size: 1.4rem; min-height: 2rem; vertical-align: middle;}
+
+.back-btn {
+	display: inline-block;
+	cursor: pointer;
+	font-weight: bold;
+	font-size: 1.3rem;
+	font-style: italic;
+	color: blue;
+	text-decoration: none;
+	margin-bottom: 0.5rem;
+}
+.back-btn:hover {background-color: yellow; color: black;}
+.back-btn::before {content: "\25C0\20\20"; font-size: 2.0rem; color: blue;}
+
+.btnValiderILB2 {
+	text-align: center;
+	border: 1px solid black;
+	border-radius: 2rem;
+	-webkit-border-radius: 2rem;
+	-moz-border-radius: 2rem;
+	cursor: pointer;
+	font-weight: bold;
+	font-size: 1.3rem;
+	display: inline-block;
+	margin: 1px 0;
+	background-color: #D4D4FF;
+	padding: 1px 0.5rem;
+}
+.btnValiderILB2:hover {background-color: black; color: white;}
+
+.archive, .pub {
+	width: 1.8rem;
+	height: 1.8rem;
+	background-position: 50% 50%;
+	background-size: 1.8rem;
+	background-repeat: no-repeat;
+	display: inline-block;
+	margin: 0 0.5rem 0.2rem 0.5rem;
+	vertical-align: middle;
+}
+.archive {background-image: url($/images/archive.png$);}
+.pub {	background-image: url($/images/pub.png$);}
+
+.table2 {display: table; margin: 0.5rem 0; border-collapse:collapse;}
+.table1 {display: table; margin: 1rem 0; border-collapse:collapse; width: 98%;}
+.tr, .tr2 {display: table-row;}
+.tr2:hover {background-color:yellow;}
+.trTitre {display: table-row; background-color: navy; color: white; font-weight: bold;}
+.td {display: table-cell; text-align: center; padding: 0 0.5rem; border: 1px solid rgb(200,200,200);}
+.tdl {display: table-cell; text-align: left; padding: 0 0.5rem;	border: 1px solid rgb(200,200,200);}
+
+.sync4, .sync3, .sync2, .sync1, .sync0 {display: inline-block; margin: 0 0.5rem;}
+.sync4::before {content: "\21D4"; font-weight: bold; color: red;}
+.sync3::before {content: "\21E8"; font-weight: bold; color: red;}
+.sync2::before {content: "\21E6"; font-weight: bold; color: red;}
+.sync1::before {content: "\2714"; font-weight: normal; color: green;}
+.sync0::before {content: "\20"; font-weight: normal; color: white;}
+
+.btnStd {
+	display: inline-block;
+	background: linear-gradient(right, white, rgb(225,225,200));
+	background: -ms-linear-gradient(right, white, rgb(225,225,200));
+	background: -webkit-linear-gradient(right, white, rgb(225,225,200));
+	background: -moz-linear-gradient(right, white, rgb(225,225,200));
+	padding: 0.1rem 0.5rem;
+	font-family: "MaFonteA";
+	font-size: 1.2rem;
+	color: rgb(80,80,80);
+	border-radius: 1.4rem;
+	-webkit-border-radius: 1.4rem;
+	-moz-border-radius: 1.4rem;
+	height: 1.8rem;
+	cursor: pointer;
+	border: 1px solid rgb(150,150,150);
+}
+.btnStd:hover {background: rgb(80,80,80); color: white;}
+
+</style>
+
+<div style="float:right">Aide&nbsp;<btn-aide ref="vueCarnet"></btn-aide></div>
+<div><i>L'adresse de cette page peut être mise en raccourci du navigateur pour un accès direct ultérieur.</i></div>
+<div><a class="back-btn" on-click="{{setLocation1}}">Retour à la liste des carnets de {{session.ident}}</a></div>
+
+<div style="margin:0 1rem 1rem 1rem;text-align:center">
+	<div class="ilb">
+		<div class="btnStd{{!((carnet.courant.s && (session.srv && !session.srvRO)) || carnet.courant.l) ? ' disabled' : ''}}" 
+			on-click="{{changerAP}}">Protéger ...</div>
+		<btn-aide ref="proteger"></btn-aide>
+	</div>
+	<div class="ilb">
+		<div class="btnStd{{!((carnet.courant.s && (session.srv && !session.srvRO)) || carnet.courant.l) ? ' disabled' : ''}}" 
+			on-click="{{supprimerC}}">Supprimer ...</div>
+		<btn-aide ref="supprimer"></btn-aide>
+	</div>
+	<div class="ilb">
+		<div class="btnStd" on-click="{{exporterC}}">Exporter ...</div>
+		<btn-aide ref="exporter"></btn-aide>
+	</div>
+	<div class="ilb">
+		<div class="btnStd{{!(session.srv && !session.srvRO) && !session.ici ? ' disabled' : ''}}"
+			on-click="{{clonerCarnet}}">Cloner ...</div>
+		<btn-aide ref="cloner"></btn-aide>
+	</div>
+</div>
+
+<template if="{{!carnet.courant}}">
+	<div class="italic">Chargement en cours ...</div>
+</template>
+
+<template if="{{carnet.courant}}">
+	<div><div class='archive'></div>Carnet protégé en écriture</div>
+	<div><div class='pub'></div>Carnet "public" accessible en lecture sur le serveur sans code PIN</div>
+
+	<div class="table2">
+		<div class="trTitre">
+			<div class="td">&nbsp;</div>
+			<div class="td">En local</div>
+			<div class="td">Sur le serveur</div>
+		</div>
+		<div class="tr">
+			<div class="td">Accès</div>
+			<div class="td">
+				<span>{{lib[carnet.courant.lrw]}}</span>
+				<template if="{{carnet.courant.l && carnet.courant.l.archive}}">
+					<div class='archive'></div>
+				</template>
+			</div>
+			<div class="td">
+				<template if="{{session.srv}}">
+					<span>{{lib[carnet.courant.srw]}}</span>
+					<template if="{{carnet.courant.s && carnet.courant.s.archive}}">
+						<div class='archive'></div>
+					</template>
+					<template if="{{carnet.courant.s && carnet.courant.s.pub}}">
+						<div class='pub'></div>
+					</template>
+				</template>
+			</div>
+		</div>
+		<div class="tr">
+			<div class="td">Création</div>
+			<div class="td">{{carnet.courant.l ? edt(carnet.courant.l.crt) + edf(carnet.courant.l.crf) : ''}}</div>
+			<div class="td">{{carnet.courant.s ? edt(carnet.courant.s.crt) + edf(carnet.courant.s.crf) : ''}}</div>
+		</div>
+		<div class="tr">
+			<div class="td">Dernière modification</div>
+			<div class="td">{{carnet.courant.l ? edt(carnet.courant.l.wtt) + edf(carnet.courant.l.wtf) : ''}}</div>
+			<div class="td">{{carnet.courant.s ? edt(carnet.courant.s.wtt) + edf(carnet.courant.s.wtf) : ''}}</div>
+		</div>
+		<div class="tr">
+			<div class="td">Derniere lecture</div>
+			<div class="td">{{carnet.courant.l ? '?' : ''}}</div>
+			<div class="td">{{carnet.courant.s ? edt(carnet.courant.s.rdt) + edf(carnet.courant.s.rdf) : ''}}</div>
+		</div>
+	</div>
+
+	<div>
+
+	<div style="float:right">
+		<template if="{{session.nbSyncL && session.srv && !session.srvRO && session.ici}}">
+			<div><div class="btnStd" index-sync="3" on-click="{{sync}}">Synchro ({{session.nbSyncL}}) Local
+				<div class="sync3"></div> Serveur</div><btn-aide ref="sync3"></btn-aide></div>
+		</template>
+		<template if="{{session.nbSyncS && session.srv && session.ici}}">
+			<div><div class="btnStd" index-sync="2" on-click="{{sync}}">Synchro ({{session.nbSyncS}}) Local
+				<div class="sync2"></div> Serveur</div><btn-aide ref="sync2"></btn-aide></div>
+		</template>
+		<template if="{{session.nbSyncL && session.nbSyncS && session.srv && !session.srvRO && session.ici}}">
+			<div><div class="btnStd" index-sync="1" on-click="{{sync}}">
+				Synchro ({{session.nbSyncL + session.nbSyncS}}) Local
+				<div class="sync4"></div> Serveur</div><btn-aide ref="sync4"></btn-aide></div>
+		</template>
+	</div>
+	<template if="{{!session.nbSyncL && !session.nbSyncS && session.srv && !session.srvRO && session.ici}}">
+		<div><span class="italic large vertgras">
+			Tous les secrets sont synchronisés</span>
+			<btn-aide ref="nosync1"></btn-aide></div>
+	</template>
+	<template if="{{!session.srv}}">
+		<div><span class="italic large vertgras">
+			Pas de synchronisation possible, le serveur n'est pas connecté</span>
+			<btn-aide ref="nosync2"></btn-aide></div>
+	</template>
+	<template if="{{session.srvRO}}">
+		<div><span class="italic large vertgras">
+			Pas de synchronisation possible vers le serveur, il est en lecture seule</span>
+			<btn-aide ref="nosync3"></btn-aide></div>
+	</template>
+	<template if="{{session.srv && !session.ici}}">
+		<div><span class="italic large vertgras">
+			Pas de synchronisation possible vers le local, rien n'est mémorisé en local</span>
+			<btn-aide ref="nosync4"></btn-aide></div>
+	</template>
+	
+	<div style="clear:both;"></div>
+	
+	<div>
+		<div class="table1">
+			<div class="trTitre">
+				<div class="tdl">Secrets</div>
+				<div class="td">En local</div>
+				<div class="td">Sync.</div>
+				<div class="td">Sur le serveur</div>
+			</div>
+			<template if="{{carnet.nvLocal}}">
+				<div class="tr">
+					<div class="tdl">
+						<div class="btnStd" on-click="{{nouveauSecret}}">
+							Nouveau secret ({{["", "local", "serveur", "local+serveur"][carnet.nvLocal]}}) </div>
+							<btn-aide ref="nvsecret{{carnet.nvLocal}}"></btn-aide>
+					</div>
+					<div class="td"></div>
+					<div class="td"></div>
+					<div class="td"></div>
+				</div>
+			</template>
+			<template repeat="{{secret, isecret in secrets1}}">
+				<div class="tr pointer" index-secret="{{isecret}}" on-click="{{editerSecret}}">
+					<div class="tdl"><div class="nom-carnet">{{secret.name}}</div></div>
+					<div class="td{{secret.src != 2 ? ' vertgras' : ''}}">
+						{{secret.l ? edt(secret.l.wtt) + edf(secret.l.wtf) : ''}}
+						<template if="{{secret.l && !secret.l.value}}">
+							<span class="rouge"> (Supprimé)</span>
+						</template>
+					</div>
+					<div class="td talc"><div class="{{'sync' + secret.sync}}"></div></div>
+					<div class="td{{secret.src != 3 ? ' vertgras':''}}">
+						{{secret.s ? edt(secret.s.wtt) + edf(secret.s.wtf) : ''}}
+						<template if="{{secret.s && !secret.s.value}}">
+							<span class="rouge"> (Supprimé)</span>
+						</template>
+					</div>
+				</div>
+			</template>
+		</div>
+	</div>
+	</div>
+</template>
+</template>
+<script>
+Polymer('vue-carnet', {
+	ready : function(){
+		lib : ["n'existe pas", "lecture (protégé)", "lecture (pas de PIN et privé)", "lecture et écriture"]
+	},
+	edt : Util.edt,
+	edf : Util.edf,
+	changerAP : function(event, detail, sender){Secrets.panelOn('changerAP')},
+	supprimerC : function(event, detail, sender){Secrets.panelOn('supprimer');},
+	exporterC : function(event, detail, sender){Secrets.panelOn('exporter');},
+	clonerCarnet : function(event, detail, sender){Secrets.panelOn('cloner');},
+	nouveauSecret : function(event, detail, sender){
+		Secrets.carnet.nomSecret = "";
+		Secrets.panelOn("nvsecret");
+	},
+	editerSecret : function(event, detail, sender){
+		var secret = Secrets.secrets1[sender.getAttribute("index-secret")];
+		Secrets.carnet.nomSecret = secret.name;
+		Secrets.panelOn("secret");
+	},
+	sync : function(event, detail, sender){
+		Secrets.sync(parseInt(sender.getAttribute("index-sync"), 10));
+	},
+	setLocation1 : Secrets.setLocation1
+});
+</script>
+</polymer-element>

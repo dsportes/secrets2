@@ -1,0 +1,10 @@
+<div ng-class="{'message':true, 'message-erreur':!info, 'message-info':info}"
+	ng-click="messageHide()" ng-style="{'top':messageTop}">
+	<div style="display:table-row;vertical-align:middle">
+		<div class="message-num">({{nmsg}})</div>
+		<div class="message-texte">&nbsp;-&nbsp;{{texte}}&nbsp;</div>
+		<div style="vertical-align:middle;display:table-cell">
+			<btn-aide ng-show="refAide" ref="'{{refAide}}'"></btn-aide>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,60 @@
+<polymer-element name="vue-admin" attributes="session prefixes">
+<template>
+<style>
+.admin-lnk {
+	cursor: pointer;
+	font-weight: bold;
+	font-size: 1.2rem;
+	font-style: italic;
+	color: blue;
+}
+.admin-lnk:hover {background-color: yellow;}
+
+.btnStd {
+	display: inline-block;
+	background: linear-gradient(right, white, rgb(225,225,200));
+	background: -ms-linear-gradient(right, white, rgb(225,225,200));
+	background: -webkit-linear-gradient(right, white, rgb(225,225,200));
+	background: -moz-linear-gradient(right, white, rgb(225,225,200));
+	padding: 0.1rem 0.5rem;
+	font-family: "MaFonteA";
+	font-size: 1.2rem;
+	color: rgb(80,80,80);
+	border-radius: 1.4rem;
+	-webkit-border-radius: 1.4rem;
+	-moz-border-radius: 1.4rem;
+	height: 1.8rem;
+	cursor: pointer;
+	border: 1px solid rgb(150,150,150);
+}
+.btnStd:hover {background: rgb(80,80,80); color: white;}
+</style>
+<div style="float:right">Aide&nbsp;<btn-aide ref="'vueAdmin'"></btn-aide></div>
+<div style="text-align:center;margin:1rem 0">
+	<div class="btnStd" on-click="{{listerIdents}}">Rafraîchir la liste des pseudos</div>
+	<div class="btnStd" on-click="{{nouveauPrefixe}}">Déclarer un nouveau pseudo ...</div>
+</div>
+<template if="{{prefixes.length >= 1}}">
+	<template if="{{prefixes.length > 1}}">
+	 	<div>{{prefixes.length}} pseudos enregistrés (cliquer sur le pseudo à détailler) :</div>
+	</template>
+	<template if="{{prefixes.length == 1}}"><div>1 pseudo enregistré :</div></template>
+	<ul>
+	<template repeat="{{prefixe in prefixes}}">
+		<li class="admin-lnk" prefixe-name="{{prefixe.name}}" on-click="{{clickIdent}}">{{prefixe.name}}</li>
+	</template>
+	</ul>
+</template>
+<template if="{{prefixes.length == 0}}"><div>Pas de pseudo enregistré</div></template>
+</template>
+<script>
+Polymer('vue-admin', {
+	ready : function(){	},
+	nouveauPrefixe : function(event, detail, sender){Secrets.panelOn("creerIdent");},
+	listerIdents : function(event, detail, sender){Serveur.listerIdents();;},
+	clickIdent : function(event, detail, sender){
+		Secrets.setLocationA2(sender.getAttribute("prefixe-name"));
+	}
+});
+</script>
+</polymer-element>

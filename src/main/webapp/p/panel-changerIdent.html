@@ -1,0 +1,102 @@
+<polymer-element name="panel-changerident" attributes="session">
+<template>
+<link rel="stylesheet" href="$/js/panel.css$" />
+<style>
+</style>
+<div class="panel-bar">Aide&nbsp;<btn-aide ref="changerIdent"></btn-aide>
+	<div class="{{idem ? 'btnAnnulerF' : 'btnAnnulerA'}}" on-click="{{panelOff}}"></div>
+</div>
+<div class="panel-body">
+	<div style="text-align:center">
+		<div class="btnTitre{{disable ? ' disabled':''}}" on-click="{{changerIdent}}">Identification</div>
+	</div>
+	<div class="infobox">Le pseudo peut, au choix,<ul>
+		<li>soit être mémorisé dans ce navigateur pour éviter d'avoir à le saisir ultérieurement,</li>
+		<li>soit y être explicitement effacé pour plus de sécurité.</li>
+	</ul></div>
+	<div class="label">Peudo :</div>
+	<div class="entree">
+		<input value="{{nvIdent}}" type="text">		
+		<div class="diag {{idDiagErr ? 'diagErr' : ''}}">{{idDiag}}</div>
+		<input class="cb1" type="checkbox" checked="{{svIdent}}">
+		<div class="cb1-label">Mémoriser le pseudo dans ce navigateur</div>
+	</div>
+	<div class="label">Code PIN d'écriture sur le serveur :</div>
+	<div class="entree">
+		<input value="{{nvPIN}}" type="{{session.enclair ? 'text' : 'password'}}">
+		<template if="{{md5PINInput}}">
+		<div class="admin-md5PIN">MD5: {{md5PINInput}}</div>
+		</template>
+		<elt-checkbox texte="Voir le code PIN en clair" data="{{session.enclair}}"></elt-checkbox>
+	</div>
+	<template if="{{svIdent}}">
+		<input class="cb1" type="checkbox" checked="{{svPIN}}">
+		<div class="cb1-label">Mémoriser le code PIN dans ce navigateur</div>
+	</template>
+	<div class="filler"></div>
+</div>
+</template>
+<script>
+Polymer('panel-changerident', {
+	observe : {
+		nvIdent : 'changeIdent',
+		nvPIN : 'changePIN',
+		svIdent : 'setDisableCI',
+		svPIN : 'setDisableCI'
+	},
+	ready : function(){
+	},
+	sessionChanged : function(oldValue, newValue){
+		if (newValue.panel == "changerIdent"){
+  			this.disable = true;
+  			this.nvIdent = Secrets.session.ident;
+  			this.svIdent = Secrets.session.svIdent;
+			this.changeIdent();
+			this.nvPIN = "";
+			this.svPIN = Secrets.session.svPIN;
+			this.md5PINInput = "";
+    		this.changePIN();
+		}
+	},
+	setDisableCI : function(){
+		  this.idem = this.nvIdent == Secrets.session.ident && this.nvPIN == "" 
+			  && (this.svIdent == Secrets.session.svIdent)
+			  && (this.svPIN == Secrets.session.svPIN);
+		  this.disable = this.idDiag || this.idem;
+	},
+	changePIN : function(){
+		  var p = this.nvPIN;
+		  this.md5PINInput = p ? Util.md5(p) : "";
+		  this.setDisableCI();
+	},
+	changeIdent : function(){
+		  var id = this.nvIdent;
+		  this.idDiag = "";
+		  if (!id) {
+			  if (!Secrets.session.ident)
+				  this.idDiag = "Un pseudo est requis (lettres majuscules / minuscules, " 
+    				  + "chiffres, points seulement)";
+		  } else {
+			  if (!id.match(Secrets.regExpId))
+				  this.idDiag = "Un pseudo ne peut contenir que des lettres majuscules / minuscules, des chiffres et des points";
+		  }
+		  this.setDisableCI();
+	},
+	changerIdent : function() {
+		  if (!this.disable) {
+			  var chg = this.nvIdent != Secrets.session.ident;
+			  if (this.svIdent)
+				  Local.saveIdent(this.nvIdent, this.svPIN && this.nvPIN ? this.md5PINInput : null);
+			  else
+				  Local.saveIdent(null, null);
+			  Secrets.setIdent(this.nvIdent, this.nvPIN ? this.md5PINInput : null);
+			  Secrets.panelOff(function(){
+				  if (chg)
+					  Secrets.setLocation1();
+			  });
+		  }
+	},
+	panelOff : function() { Secrets.panelOff(); }
+});
+</script>
+</polymer-element>

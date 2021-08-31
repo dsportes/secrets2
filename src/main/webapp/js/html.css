@@ -1,0 +1,64 @@
+html {font-size: 70%; }
+@media print {html {font-size: 50%;}}
+@media handheld, screen and (max-width: 900px) {html {font-size: 65%;}}
+@media handheld, screen and (max-width: 720px) {html {font-size: 60%;}}
+
+@font-face {font-family: "MaFonteA"; src: url("/fonts/RobotoSlab-Regular.ttf");}
+@font-face {font-family: "MaFonteA"; src: url("/fonts/RobotoSlab-Bold.ttf"); font-weight: bold;}
+@font-face {font-family: "MaFonteM"; src: url("/fonts/AnonymousPro.ttf");}
+@font-face {font-family: "MaFonteT"; src: url("/fonts/NixieOne-Regular.ttf");}
+
+body {
+	font-family: MaFonteA, Arial, sans-serif;
+	text-shadow: 0px 0px 0px;
+	font-size: 1.2rem;
+	font-weight: normal;
+	font-style: normal;
+	background-color: rgb(230,240,240);
+	margin: 0;
+	min-width: 480px;
+	max-width: 800px;
+	padding: 0!important;
+}
+
+#accueil {
+	position: fixed;
+	z-index: 1000;
+	background: linear-gradient(right, white, rgb(225,225,200));
+	background: -ms-linear-gradient(right, white, rgb(225,225,200));
+	background: -webkit-linear-gradient(right, white, rgb(225,225,200));
+	background: -moz-linear-gradient(right, white, rgb(225,225,200));
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	padding: 5% 10%;
+	transition: opacity 0.6s ease-in;
+	-webkit-transition: opacity 0.6s ease-in;
+	-moz-transition: opacity 0.6s ease-in;
+}
+.accueil-B {
+	width: 80%;
+	height: 80%;
+	margin: 0;
+	padding: 0;
+	border: 2px solid rgb(255,255,255);
+	border-radius: 3rem;
+	-webkit-border-radius: 3rem;
+	-moz-border-radius: 3rem;
+}
+.accueil-A {
+	font-family: "MaFonteT";
+	margin-top: 4rem;
+	margin-bottom: 4rem;
+	margin-right: 8rem;
+	text-align: right;
+	font-size: 8rem;
+}
+
+@media (max-width: 900px) { .accueil-A {margin-right: 7rem;font-size: 7rem;}}
+@media (max-width: 720px) { .accueil-A {margin-right: 6rem;font-size: 6rem;}}
+@media (max-width: 480px) { .accueil-A {margin-right: 3rem;font-size: 3rem;}}
+@media (max-height: 720px) { .accueil-A {margin-top: 3rem;margin-bottom: 3rem;font-size: 7rem;}}
+@media (max-height: 640px) { .accueil-A {margin-top: 2rem;margin-bottom: 2rem;font-size: 6rem;}}
+@media (max-height: 320px) { .accueil-A {margin-top: 1rem;margin-bottom: 1rem;font-size: 3rem;}}

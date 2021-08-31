@@ -1,0 +1,80 @@
+<polymer-element name="app-message" attributes="info messageTop nmsg texte refAide">
+<template>
+<style>
+.message {
+	position: fixed;
+	width: 80%;
+	left: 10%;
+	top: -5rem;
+	z-index: 400;
+	transition: top 0.3s linear;
+	-webkit-transition: top 0.3s linear;
+	-moz-transition: top 0.3s linear;
+	-o-transition: top 0.3s linear;
+	-moz-box-shadow: 2px 2px 10px 2px #343434;
+	-webkit-box-shadow: 2px 2px 10px 2px #343434;
+	-o-box-shadow: 2px 2px 10px 2px #343434;
+	box-shadow: 2px 2px 10px 2px #343434;
+	border-radius: 12px;
+	-webkit-border-radius: 12px;
+	-moz-border-radius: 12px;	
+	max-height: 3rem;
+	overflow: hidden;
+	padding: 0.5rem;
+	cursor: pointer;
+}
+.message-texte {display: table-cell; vertical-align:middle;}
+.message-num {display: table-cell; vertical-align:middle; font-size: 1rem; font-style: normal;}
+.message-erreur {background-color: rgb(180, 180, 180); color: red; font-weight: bold; font-size: 1.4rem;}
+.message-info {background-color: rgb(50, 50, 50); color: white; font-weight: normal; font-size: 1.2rem;}
+.message-top-1 {top:1rem;}
+.message-top-6 {top:-6rem;}
+.table-cell {display:table-cell;vertical-align:middle;}
+.displaynone {display:none;}
+</style>
+<div class="{{'message ' + (info ? 'message-info' : 'message-erreur')}} message-top-{{messageTop}}" on-click="{{cacher}}">
+	<div style="display:table-row;vertical-align:middle">
+		<div class="message-num">({{nmsg}})</div>
+		<div class="message-texte">&nbsp;-&nbsp;{{texte}}&nbsp;</div>
+		<div  class="{{refAide ? 'table-cell' : 'displaynone'}}">
+			<btn-aide ref="{{refAide}}"></btn-aide>
+		</div>
+	</div>
+</div>
+</template>
+<script>
+Polymer('app-message', {
+	ready : function(){
+		this.info = true;
+		this.messageTop = "6";
+		this.nmsg = 0;
+		this.texte = "";
+		this.refAide = "";
+		var self = this;
+		window.addEventListener('secrets-message', function(e) {
+			e.preventDefault();
+			self.montrer(e.detail);
+		});
+	},
+	montrer : function(data){
+		this.texte = data.texte;
+		this.info = data.info;
+		this.refAide = data.refAide;
+		this.nmsg++;
+		var n = this.nmsg;
+		this.async(function(){
+			this.messageTop = "1";
+		}, null, 50);
+		this.async(function(){
+			this.cacher(n);
+		}, null, this.info ? 3000 : 8000);
+	},
+	cacher : function(event, detail, sender) {
+		  if (!(typeof event === 'object') && event && event != this.nmsg)
+			  return;
+		  this.messageTop = "6";
+		  this.refAide = null;
+	}
+});
+</script>
+</polymer-element>

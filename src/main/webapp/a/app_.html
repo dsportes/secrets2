@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="fr" manifest="/a/offline.appcache" xmlns:ng="http://angularjs.org" id="ng-app" ng-app="secretsApp">
+<head> 
+<title>Secrets on/off line</title>
+<meta charset="utf-8">
+<!-- manifest="/a/offline.appcache"
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+ -->
+<meta name="viewport" content="user-scalable=yes, width=device-width, initial-scale=1.0, maximum-scale=3.0" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<link rel="apple-touch-icon" href="$/images/icon.png$" />
+<link rel="apple-touch-startup-image" href="$/images/startup.png$" />
+<link rel="shortcut icon" type="image/png" href="$/images/icon.png$">
+<link rel="icon" type="image/png" href="$/images/icon.png$">
+
+<link rel="stylesheet" href="$/js/html.css$" />
+<link rel="stylesheet" href="$/js/app.css$" />
+<link rel="stylesheet" href="$/js/panel.css$" />
+<link rel="stylesheet" href="$/a/secrets.css$" />
+
+<script>
+	version_secrets = "$version_secrets$";
+	version_aide = "$version_aide$";
+	templ_app_aide = '$/a/app-aide.html$';
+	templ_app_message = '$/a/app-message.html$';
+	templ_app_spinner = '$/a/app-spinner.html$';
+	templ_panel_changerIci = '$/a/panel-changerIci.html$';
+	templ_panel_changerIdent = '$/a/panel-changerIdent.html$';
+	templ_panel_changerPin = '$/a/panel-changerPin.html$';
+</script>
+
+<script src="$/js/aes.js$"></script>
+<script src="$/js/md5.js$"></script>
+<script src="$/js/secrets.js$"></script>
+<script src="$/js/util.js$"></script> 
+
+<script src="$/a/angular.min.js$"></script>
+<script src="$/a/admin.js$"></script>
+<script src="$/a/carnets.js$"></script> 
+<script src="$/a/ctrl.js$"></script> 
+
+</head>
+<body ng-controller="secretsCtrl" ng-cloak>
+
+	<div id="accueil">
+		<div class="accueil-B">
+			<div class="accueil-A">mes</div>
+			<div class="accueil-A">petits</div>
+			<div class="accueil-A">secrets</div>
+		</div>
+	</div>
+	
+	<a id='save-link' hidden download="secrets.txt"></a>
+	<div class="masqueForm" ng-show="session.panel"></div>
+
+	<app-aide></app-aide>
+	<app-message></app-message>
+	<app-spinner></app-spinner>
+	
+	<panel-setpin class="panel" ng-show="session.panel == 'setPIN'" ng-style="{'left':session.panelleft}"></panel-setpin>
+	<panel-changerici class="panel" ng-show="session.panel == 'changerIci'" ng-style="{'left':session.panelleft}"></panel-changerici>
+	<panel-changerident class="panel" ng-show="session.panel == 'changerIdent'" ng-style="{'left':session.panelleft}"></panel-changerident>
+	<panel-changerpin class="panel" ng-show="session.panel == 'changerPIN'" ng-style="{'left':session.panelleft}"></panel-changerpin>
+
+	<div class="bar">
+		<div class='bar1' ng-show="session.estAdmin">
+			<div style="float:right">
+				<span class="titre">Administration</span>
+				<div class="btnStd" ng-click="quitter();" >Quitter</div>
+				<span>Aide</span>
+				<btn-aide ref="'admin'"></btn-aide>
+			</div>
+			<span ng-show="nomvue == 'adminid'" class="identite1">{{session.ident}}</span>
+		</div>
+
+		<div class='bar1' ng-show="!session.estAdmin">
+			<div style="float:right">
+				<div class="btnStd" ng-click="quitter();" >Quitter</div>
+				<span>Aide</span>
+				<btn-aide ref="'accueil'"></btn-aide>
+			</div>
+			<span class="identite1">{{session.ident}}</span>
+			<div ng-class="{'pinG':!session.md5PIN, 'pinV':session.md5PIN}">PIN</div>
+			<div class="btnStd" ng-click="panelOn('changerIdent');" >Changer&nbsp;...</div>
+			<btn-aide ref="'changerIdent'"></btn-aide>
+			<span class="identite2">{{dir.length | ednbx:'carnet'}}</span>
+		</div>
+
+		<div class='bar1' ng-show="!session.estAdmin">
+		<div class="bar1D">
+			<div class="bar1DG" ng-show="!session.srv">
+				<span class="identite2" style="color:red">Off-Line</span>
+				<div class="btnStd" ng-click="connecter();" >Se connecter&nbsp;...</div>
+				<btn-aide ref="'connexion'"></btn-aide>
+			</div>
+
+			<div class="bar1DL" ng-show="session.srvRO && !session.md5PIN">
+				<span class="identite2" style="color:orange">On-Line, lecture seule&nbsp;</span>
+				<div class="btnStd" ng-click="changerIdent();"><span style="color:orange">PIN non saisi</span></div>
+				<btn-aide ref="'lectureSeule1'"></btn-aide>
+			</div>
+
+			<div class="bar1DL" ng-show="session.srvRO && session.md5PIN">
+				<span class="identite2" style="color:orange">On-Line, lecture seule&nbsp;</span>
+				<div class="btnStd" ng-click="changerIdent();"><span style="color:orange">PIN incorrect</span></div>
+				<btn-aide ref="'lectureSeule2'"></btn-aide>
+			</div>
+
+			<div class="bar1DV" ng-show="session.srv && !session.srvRO">
+				<span class="identite2" style="color:green">On-Line</span>
+				<div class="btnStd" ng-click="panelOn('changerPIN');" >Changer le PIN&nbsp;...</div>
+				<btn-aide ref="'pinServeur2'"></btn-aide>
+			</div>
+		</div>
+		<div class="bar1L">
+			<div class="bar1LN" ng-show="session.ici">
+				<span class="changerIci1">Local&nbsp;:&nbsp;{{session.ici}}</span>
+				<div class="btnStd" ng-click="panelOn('changerIci');" >Gérer&nbsp;...</div>
+				<btn-aide ref="'changerIci1'"></btn-aide>
+			</div>
+			<div class="bar1LN" ng-show="!session.ici">
+				<span class="changerIci2">Pas de stockage local</span>
+				<div class="btnStd" ng-click="panelOn('changerIci');" >Activer&nbsp;...</div>
+				<btn-aide ref="'changerIci2'"></btn-aide>
+			</div>
+		</div>
+		</div>
+		
+		<div class='bar1' ng-show="!session.estAdmin && carnet.nom">
+			<span class="identite1">Carnet : <b>{{carnet.nom}}</b> - {{secrets1.length | ednbx:'secret' }}</span>
+		</div>
+				
+	</div>
+		
+	<div class="corps">
+	
+		<div ng-show="nomvue == 'admin'" ng-controller="adminCtrl" style="margin-top:3.5rem">
+			<div  class="vue" ng-style="{'opacity':opacity}">
+				<div style="float:right">Aide&nbsp;<btn-aide ref="'vueAdmin'"></btn-aide></div>
+				<div style="text-align:center;margin:1rem 0">
+					<div class="btnStd" ng-click="listerIdents()">Rafraîchir la liste des pseudo</div>
+					<div class="btnStd" ng-click="nouveauPrefixe()">Déclarer un nouveau pseudo ...</div>
+				</div>
+				<div ng-if="prefixes.length >= 1">
+					<div ng-if="prefixes.length > 1">{{prefixes.length}} pseudos enregistrés (cliquer sur l'identifiant à détailler) :</div>
+					<div ng-if="prefixes.length == 1">1 pseudo enregistré :</div>
+					<ul>
+					<div ng-repeat="prefixe in prefixes">
+						<li class="admin-lnk" ng-click="clickIdent(prefixe.name);">{{prefixe.name}}</li>
+					</div>
+					</ul>
+				</div>
+				<div ng-if="prefixes.length == 0">Pas de pseudo enregistré</div>
+				
+				<div class="panel" ng-show="session.panel == 'creerIdent'" ng-style="{'left':session.panelleft}">
+					<div class="panel-bar">Aide&nbsp;
+						<btn-aide ref="'creerIdent'"></btn-aide>
+						<div ng-class="{'btnAnnulerA':!idem, 'btnAnnulerF':idem}" ng-click="panelOff()"></div>
+					</div>
+					<div class="panel-body">
+						<div style="text-align:center">
+							<div ng-class="{'btnTitre':true, 'disabled':disable}" ng-click="creerIdent();">
+							Enregistrer un nouveau pseudo</div>
+						</div>
+						<div class="infobox">Le nouveau pseudo enregistré peut mettre un certain temps
+						à apparaître dans la liste. Rafraîchir celle-ci régulièrement jusqu'à son apparition.</div>
+						<div class="label">Identifiant :</div>
+						<div class="entree">
+							<input ng-model="nvIdent" type="text" ng-change="changeCreer()">
+							<div ng-class="{'diag':true, 'diagErr':idDiagErr}">{{idDiag}}</div>
+						</div>
+						<div class="label">Code PIN d'écriture :</div>
+						<div class="entree">
+							<input ng-model="nvPIN" type="{{session.enclair ? 'text' : 'password'}}" ng-change="changeCreer()">
+							<div class="diag" ng-show="!md5PIN">Un code PIN est obligatoire (ou son MD5 : 32 caractères hexa (0-9 a-f))</div>
+							<div class="md5PIN" ng-show="md5PIN">MD5: {{md5PIN}}</div>
+							<cb-ec texte="Voir le code PIN en clair" model="session.enclair"></cb-ec>
+						</div>
+						<div class="infobox">Le pseudo "source" est celui dont les carnets sont recopiés à la création du nouveau pseudo<br>
+						Il est facultaif et ne sert qu'à permettre de dédoubler un pseudo existant.</div>
+						<div class="label">Pseudo SOURCE :</div>
+						<div class="entree">
+							<input ng-model="source" type="text" ng-change="changeSource()">
+							<div class="diagErr">{{idDiag2}}</div>
+						</div>
+						
+						<div class="filler"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div ng-show="nomvue == 'adminid'" ng-controller="adminIdCtrl"  style="margin-top:3rem">
+			<div class="vue" ng-style="{'opacity':opacity}">
+				<div style="float:right">Aide&nbsp;<btn-aide ref="'vueAdminid'"></btn-aide></div>
+				<div class="back-btn" ng-click="backIdents();">Retour à la liste des pseudos</div>
+			
+				<div ng-show="session.md5PIN">
+					<div><span class="bold italic">Créé le : </span>{{session.time}}</div>
+					<div><span class="bold italic">Pin : </span>{{session.md5PIN}}</div>
+					<div style="text-align:center;margin:1rem 0">
+						<div class="btnStd" ng-click="editerPIN()">Changer le code PIN ...</div>
+						<div class="btnStd" ng-click="panelOn('supprPrefixe');">Supprimer définitivement ...</div>
+					</div>
+				</div>
+					
+				<div class="italic" ng-show="!session.md5PIN">Chargement en cours ...</div>
+				
+				<div ng-show="carnets.length == 0 && session.md5PIN"><b><i>Aucun carnet enregistré.</i></b></div>
+			
+				<div ng-show="carnets.length > 0 && session.md5PIN" class="table1">
+					<div class="trTitre">
+						<div class="td">Nom du carnet</div>
+						<div class="td">Archive</div>
+						<div class="td">Public</div>
+						<div class="td">Création</div>
+						<div class="td">Dernière lecture</div>
+						<div class="td">Dernière mise à jour</div>
+						<div class="td">Supprimer</div>
+					</div>
+					<div class="tr" ng-repeat="carnet in carnets">
+						<div class="td nom-carnet">{{carnet.name}}</div>
+						<div class="td"><div ng-class="{'admin-check':carnet.archive}"></div></div>
+						<div class="td"><div ng-class="{'admin-check':carnet.pub}"></div></div>
+						<div class="td">{{(carnet.crt | edt) + (carnet.crf | edf)}}</div>
+						<div class="td">{{(carnet.rdt | edt) + (carnet.rdf | edf)}}</div>
+						<div class="td">{{(carnet.wtt | edt) + (carnet.wtf | edf)}}</div>
+						<div class="td"><div class="admin-supprimer" ng-click="supprCarnet(carnet.name);"></div></div>
+					</div>
+				</div>
+				
+				<div class="panel" ng-show="session.panel == 'adminChangerPIN'" ng-style="{'left':session.panelleft}">
+					<div class="panel-bar">Aide&nbsp;
+						<btn-aide ref="'adminChangerPIN'"></btn-aide>
+						<div ng-class="{'btnAnnulerA':md5PIN2, 'btnAnnulerF':!md5PIN2}" ng-click="panelOff()"></div>
+					</div>
+					<div class="panel-body">
+						<div style="text-align:center">
+							<div ng-class="{'btnTitre':true, 'disabled':disable}" ng-click="changerPIN();">
+							Enregistrer le nouveau code PIN d'écriture</div>
+						</div>
+						<div class="label">Nouveau code PIN d'écriture :</div>
+						<div class="entree">
+							<input ng-model="nvPIN2" type="{{session.enclair ? 'text' : 'password'}}" ng-change="changePIN();">
+							<div class="diag" ng-show="!md5PIN2">Un code PIN est obligatoire (ou son MD5 : 32 caractères hexa (0-9 a-f))</div>
+							<div class="md5PIN" ng-show="md5PIN2">MD5: {{md5PIN2}}</div>
+							<cb-ec texte="Voir le code PIN en clair" model="session.enclair"></cb-ec>
+						</div>
+						<div class="filler"></div>
+					</div>
+				</div>
+					
+				<div class="panel" ng-show="session.panel == 'supprPrefixe'" ng-style="{'left':session.panelleft}">
+					<div class="panel-bar">Aide&nbsp;
+						<btn-aide ref="'supprPrefixe'"></btn-aide>
+					</div>
+					<div class="panel-body">
+						<div style="margin:1rem;text-align:center">
+							<div class="btnValider" ng-click="supprPrefixe()">Confirmer</div>
+							<div class="btnAnnuler" ng-click="panelOff()">Annuler</div>
+						</div>
+						<div class="rouge">Cette opération est définitive, plus aucun carnet de 
+							secrets n'existeront pour ce pseudo.<br>Confirmer ou annuler.</div>
+						<div class="filler"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div ng-show="nomvue == 'dir'" ng-controller="carnetsIdCtrl" style="margin-top:6rem">
+			<div><i>L'adresse de cette page peut être mise en raccourci du navigateur pour un accès direct ultérieur.</i></div>
+			<div class="vue" ng-style="{'opacity':opacity}">
+				<div ng-show="!session.ici && !session.srv">
+					<div style="float:right">Aide&nbsp;<btn-aide ref="'vueDirVide1'"></btn-aide></div>			
+					Pas de carnets accessibles : la mémoire locale n'est pas activée et le serveur n'est pas connecté.
+				</div>
+				<div ng-show="!session.ici && session.srvRO && !dir.length">
+					<div style="float:right">Aide&nbsp;<btn-aide ref="'vueDirVide2'"></btn-aide></div>			
+					Pas de carnets accessibles : <br>
+					-la mémoire locale n'est pas activée,<br>
+					-le serveur est connecté en lecture seulement (pas de PIN correct) et aucun carnet n'y a un accès public.
+				</div>
+				<div ng-show="dir.length > 0 || (session.srv && !session.srvRO) || session.ici">
+					<div style="float:right">Aide&nbsp;<btn-aide ref="'vueDir'"></btn-aide></div>
+					<div><div class='archive'></div>Carnet protégé en écriture</div>
+					<div><div class='pub'></div>Carnet "public" accessible en lecture sur le serveur sans code PIN</div>
+					<div style="font-style:italic">Les carnets dont la clé de cryptage a déjà été donnée sont en vert.<br></div>
+					<div style="font-style:italic">Pour ouvrir un carnet cliquer sur sa ligne.<br></div>
+					<div class="table1">
+						<div class="trTitre">
+							<div class="tdl">Nom du carnet</div>
+							<div class="td">En local</div>
+							<div class="td">Sur le serveur</div>
+						</div>
+						<div class="tr" ng-show="session.ici || (session.srv && !session.srvRO)">
+							<div class="tdl">
+								<div class="ilb"  ng_show="!(session.srv && !session.srvRO) && session.ici">
+									<div class="btnStd" ng-click="nouveauCarnet()">Nouveau carnet (local) ...</div>
+									<btn-aide ref="'nouveauCarnetL'"></btn-aide>
+								</div>
+								<div class="ilb"  ng_show="(session.srv && !session.srvRO) && !session.ici">
+									<div class="btnStd"  ng-click="nouveauCarnet()">Nouveau carnet (serveur) ...</div>
+									<btn-aide ref="'nouveauCarnetS'"></btn-aide>
+								</div>
+								<div class="ilb"  ng_show="(session.srv && !session.srvRO) && session.ici">
+									<div class="btnStd"  ng-click="nouveauCarnet()">Nouveau carnet (local+serveur) ...</div>
+									<btn-aide ref="'nouveauCarnetSL'"></btn-aide>
+								</div>
+							</div>
+							<div class="td"></div>
+							<div class="td"></div>
+						</div>
+						
+						<div class="tr2 pointer" ng-repeat="carnet in dir" ng-click="clickCarnet(carnet);">
+							<div class="tdl"><div class="nom-carnet" ng-style="{color:carnet.color}">{{carnet.name}}</div></div>
+							<div class="td">
+								<div class='archive' ng-show="carnet.l && carnet.l.archive"></div>
+								<span ng-class="{'vertgras':carnet.lv}">{{carnet.l ? (carnet.l.wtt | edt) + (carnet.l.wtf | edf) : ''}}</span>
+							</div>
+							<div class="td">
+								<div class='archive' ng-show="carnet.s && carnet.s.archive"></div>
+								<div class='pub' ng-show="carnet.s && carnet.s.pub"></div>
+								<span ng-class="{'vertgras':carnet.sv}">{{carnet.s ? (carnet.s.wtt | edt) + (carnet.s.wtf | edf) : ''}}</span>
+							</div>
+						</div>
+					</div>
+				</div>
+								
+				<div class="panel" ng-show="session.panel == 'creerNC'" ng-style="{'left':session.panelleft}">
+					<div class="panel-bar">Aide&nbsp;
+						<btn-aide ref="'creerNC'"></btn-aide>
+						<div ng-class="{'btnAnnulerF':idem, 'btnAnnulerA':!idem}" ng-click="panelOff();"></div>
+					</div>
+					<div class="panel-body">
+						<div style="text-align:center">
+							<div ng-class="{'btnTitre':true, 'disabled':disable}" ng-click="creerNC()">
+							Créer un nouveau carnet de secrets</div>
+						</div>
+						<div class='infobox'>Ni le nom du carnet, 
+						ni la clé de cryptage, ni la phrase pour s'en souvenir, ne PEUVENT PLUS être changés
+						après création du carnet.<br>
+						La clé de cryptage ne pourra jamais être retrouvée si elle est perdue, 
+						les secrets resteront ... secrets.</div>
+						<div class="label">Nom du carnet :</div>
+						<div class="entree">
+							<input ng-model="ncNom" type="text" ng-change="changeNcNom();">
+							<div ng-class="{'diag':true, 'diagErr':ncNomErr}">{{ncNomDiag}}</div>
+						</div>
+						<div class="label">Clé de cryptage :</div>
+						<div class="entree">
+							<input ng-model="ncCle" type="{{session.enclair ? 'text' : 'password'}}" 
+								ng-change="changeNcCle();">
+							<div class="diagErr" ng-show="ncCleErr">La clé doit avoir une longueur minimale de 8 catractères</div>
+						</div>
+						<cb-ec texte="Voir la clé en clair" model='session.enclair'></cb-ec>
+						<div class="label">Vérification de la clé de cryptage :</div>
+						<div class="entree">
+							<input ng-model="ncCle2" type="{{session.enclair ? 'text' : 'password'}}">
+							<div class="diagErr" ng-show="ncCle != ncCle2">Le code et sa vérification sont différents</div>
+						</div>
+						<div class="label">Phrase pour se rappeler de la clé :</div>
+						<div class="entree">
+							<input ng-model="ncPhrase" type="text" ng-change="changeNcPhrase();">
+							<div class="diagErr" ng-show="ncPhraseErr">La phrase doit avoir une longueur minimale de 8 catractères</div>
+						</div>
+						<div class="filler"></div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		
+		<div ng-show="nomvue == 'carnet'" ng-controller="carnetsCarnetCtrl"  style="margin-top:8.5rem">
+			<div><i>L'adresse de cette page peut être mise en raccourci du navigateur pour un accès direct ultérieur.</i></div>
+			<div class="vue" ng-style="{'opacity':opacity}">
+				<div style="float:right">Aide&nbsp;<btn-aide ref="'vueCarnet'"></btn-aide></div>
+				<div><a class="back-btn" ng-click="setLocation1();">Retour à la liste des carnets de {{session.ident}}</a></div>
+			
+				<div style="margin:0 1rem 1rem 1rem;text-align:center">
+					<div class="ilb">
+						<div ng-class="{'btnStd':true, 'disabled':!((carnet.courant.s && (session.srv && !session.srvRO)) || carnet.courant.l)}" 
+							ng-click="editerAP();">Protéger ...</div>
+						<btn-aide ref="'proteger'"></btn-aide>
+					</div>
+					<div class="ilb">
+						<div ng-class="{'btnStd':true, 'disabled':!((carnet.courant.s && (session.srv && !session.srvRO)) || carnet.courant.l)}" 
+							ng-click="supprimerC();">Supprimer ...</div>
+						<btn-aide ref="'supprimer'"></btn-aide>
+					</div>
+					<div class="ilb">
+						<div class="btnStd" ng-click="exporterC();">Exporter ...</div>
+						<btn-aide ref="'exporter'"></btn-aide>
+					</div>
+					<div class="ilb">
+						<div ng-class="{'btnStd':true, 'disabled':!(session.srv && !session.srvRO) && !session.ici}"
+							ng-click="clonerCarnet();">Cloner ...</div>
+						<btn-aide ref="'cloner'"></btn-aide>
+					</div>
+				</div>
+					
+				<div class="italic" ng-show="!carnet.courant">Chargement en cours ...</div>
+				
+				<div ng-show="carnet.courant">
+					<div><div class='archive'></div>Carnet protégé en écriture</div>
+					<div><div class='pub'></div>Carnet "public" accessible en lecture sur le serveur sans code PIN</div>
+				
+					<div class="table2">
+						<div class="trTitre">
+							<div class="td">&nbsp;</div>
+							<div class="td">En local</div>
+							<div class="td">Sur le serveur</div>
+						</div>
+						<div class="tr">
+							<div class="td">Accès</div>
+							<div class="td">
+								<span>{{lib[carnet.courant.lrw]}}</span>
+								<div ng-show="carnet.courant.l && carnet.courant.l.archive" class='archive'></div>
+							</div>
+							<div class="td">
+								<div ng-show="session.srv">
+									<span>{{lib[carnet.courant.srw]}}</span>
+									<div ng-show="carnet.courant.s && carnet.courant.s.archive" class='archive'></div>
+									<div ng-show="carnet.courant.s && carnet.courant.s.pub" class='pub'></div>
+								</div>
+							</div>
+						</div>
+						<div class="tr">
+							<div class="td">Création</div>
+							<div class="td">{{carnet.courant.l ? (carnet.courant.l.crt | edt) + (carnet.courant.l.crf | edf) : ''}}</div>
+							<div class="td">{{carnet.courant.s ? (carnet.courant.s.crt | edt) + (carnet.courant.s.crf | edf) : ''}}</div>
+						</div>
+						<div class="tr">
+							<div class="td">Dernière modification</div>
+							<div class="td">{{carnet.courant.l ? (carnet.courant.l.wtt | edt) + (carnet.courant.l.wtf | edf) : ''}}</div>
+							<div class="td">{{carnet.courant.s ? (carnet.courant.s.wtt | edt) + (carnet.courant.s.wtf | edf) : ''}}</div>
+						</div>
+						<div class="tr">
+							<div class="td">Derniere lecture</div>
+							<div class="td">{{carnet.courant.l ? '?' : ''}}</div>
+							<div class="td">{{carnet.courant.s ? (carnet.courant.s.rdt | edt) + (carnet.courant.s.rdf | edf) : ''}}</div>
+						</div>
+					</div>
+				
+					<div>
+				
+					<div style="float:right">
+						<div ng-show="session.nbSyncL && session.srv && !session.srvRO && session.ici">
+						<div class="btnStd" ng-click="sync(3);">Synchro ({{session.nbSyncL}}) Local
+							<div class="sync3"></div> Serveur</div><btn-aide ref="'sync3'"></btn-aide>
+						</div>
+						<div ng-show="session.nbSyncS && session.srv && session.ici">
+						<div class="btnStd" ng-click="sync(2);">Synchro ({{session.nbSyncS}}) Local
+							<div class="sync2"></div> Serveur</div><btn-aide ref="'sync2'"></btn-aide>
+						</div>
+						<div ng-show="session.nbSyncL && session.nbSyncS && session.srv && !session.srvRO && session.ici">
+						<div class="btnStd" ng-click="sync(1);">Synchro ({{session.nbSyncL + session.nbSyncS}}) Local
+							<div class="sync4"></div> Serveur</div><btn-aide ref="'sync4'"></btn-aide>
+						</div>
+					</div>
+					<div ng-show="!session.nbSyncL && !session.nbSyncS && session.srv && !session.srvRO && session.ici">
+						<span  class="italic large vertgras">Tous les secrets sont synchronisés</span>
+						<btn-aide ref="'nosync1'"></btn-aide>
+					</div>
+					<div ng-show="!session.srv"><span class="italic large vertgras">
+					Pas de synchronisation possible, le serveur n'est pas connecté</span>
+					<btn-aide ref="'nosync2'"></btn-aide>
+					</div>
+					<div ng-show="session.srvRO"><span class="italic large vertgras">
+					Pas de synchronisation possible vers le serveur, il est en lecture seule</span>
+					<btn-aide ref="'nosync3'"></btn-aide>
+					</div>
+					<div ng-show="session.srv && !session.ici"><span class="italic large vertgras">
+					Pas de synchronisation possible vers le local, rien n'est mémorisé en local</span>
+					<btn-aide ref="'nosync4'"></btn-aide>
+					</div>
+					
+					<div style="clear:both;"></div>
+					<div>
+						<div class="table1">
+							<div class="trTitre">
+								<div class="tdl">Secrets</div>
+								<div class="td">En local</div>
+								<div class="td">Sync.</div>
+								<div class="td">Sur le serveur</div>
+							</div>
+							<div ng-show="carnet.nvLocal" class="tr">
+								<div class="tdl">
+									<div class="btnStd" ng-click="nouveauSecret()">
+										Nouveau secret ({{["", "local", "serveur", "local+serveur"][carnet.nvLocal]}}) ...</div>
+										<btn-aide ref="'nvsecret' + carnet.nvLocal"></btn-aide>
+								</div>
+								<div class="td"></div>
+								<div class="td"></div>
+								<div class="td"></div>
+							</div>
+							<div class="tr2 pointer" ng-repeat="secret in secrets1" ng-click="editerSecret(secret.name);">
+								<div class="tdl"><div class="nom-carnet">{{secret.name}}</div></div>
+								<div class="td" ng-class="{'vertgras':secret.src != 2}">
+									{{secret.l ? (secret.l.wtt | edt) + (secret.l.wtf | edf) : ''}}
+									<span class="rouge" ng-show="secret.l && !secret.l.value"> (Supprimé)</span></div>
+								<div class="td talc"><div ng-class="'sync' + secret.sync"></div></div>
+								<div class="td" ng-class="{'vertgras':secret.src != 3}">
+									{{secret.s ? (secret.s.wtt | edt) + (secret.s.wtf | edf) : ''}}
+									<span class="rouge" ng-show="secret.s && !secret.s.value"> (Supprimé)</span></div>
+							</div>
+						</div>
+					</div>
+					</div>
+				</div>
+				
+				<div class="panel" ng-show="session.panel == 'saisirCle'" ng-style="{'left':session.panelleft}">
+					<div class="panel-bar">Aide&nbsp;
+						<btn-aide ref="'saisirCle'"></btn-aide>
+						<div class="btnAnnulerA" ng-click="fermerCle();"></div>
+					</div>
+					<div class="panel-body">
+						<div class="infobox">Donner la clé de cryptage pour accéder aux secrets du carnet.</div>
+						<div ng-show="carnet.phrase"><br>Phrase d'aide : <span class="bold italic">{{carnet.phrase}}</span><br></div>
+						<div class="label">Clé de cryptage :</div>
+						<div class="entree">
+							<input ng-model="ncCle" type="{{session.enclair ? 'text' : 'password'}}" 
+								ng-change="testCle();">
+						</div>
+						<cb-ec texte="Voir la clé en clair" model='session.enclair'></cb-ec>
+						<div class="filler"></div>
+					</div>
+				</div>
+			
+				<div class="panel2" ng-show="session.panel == 'secret'" ng-style="{'right':session.panelleft}">
+					<div class="panel-bar">
+						<div style="float:right" ng-show="nvSecret"><btn-aide ref="'secret1'"></btn-aide></div>
+						<div style="float:right" ng-show="!nvSecret"><btn-aide ref="'secret2'"></btn-aide></div>
+						<div ng-class="{'btnAnnulerA2':editeSC, 'btnAnnulerF2':!editeSC}" ng-click="panelOff();"></div>
+						<div class="secret-nom">{{secret.name}}</div>
+					</div>
+					
+					<div class="panel-body">					
+						<div ng-show="nvSecret">
+							<div style="text-align:center">
+								<div ng-class="{'btnTitre2':true, 'disabled':erreurSC || !secret.name || !editeSC}" 
+									ng-click="validerSecret(secret)">Créer le secret</div>
+							</div>
+							<div class="label">Nom du nouveau secret :</div>
+							<div class="entree">
+								<input ng-model="nvNom" style="max-width:20rem" type="text" ng-change="changeNomSecret();">
+								<div class="diagErr" ng-show="erreurSC">Un secret de ce nom existe déjà</div>
+								<div class="diagErr" ng-show="!secret.name">Le nom est obligatoire</div>
+								<div class="diagErr" ng-show="!editeSC">Un secret doit avoir un texte d'au moins 1 caractère</div>
+							</div>
+						</div>
+						<div ng-show="!nvSecret">
+							<div ng-show="editable" style="text-align:center">
+								<div ng-class="{'btnTitre2':true, 'disabled':!editeSC}" 
+									ng-click="validerSecret();">{{texte ? 'Enregistrer les modifications' : 'Supprimer le secret'}}</div>
+							</div>
+							<div class="italic" ng-show="secret.wtt">Dernière modification : 
+								{{(secret.wtt | edt) + (secret.wtf | edf)}}</div>
+							<div class="rouge" ng-show="!editable">NON modifiable</div>
+							<div ng-show="editable">Un texte vide "supprime" le secret</div>
+						</div>
+				
+						<textarea class="secret-texte" ng-model="texte" ng-readonly="!editable"
+							ng-change="changeTexteSecret();"></textarea>
+						<div class="filler"></div>
+					</div>
+				</div>
+
+				<div class="panel" ng-show="session.panel == 'changerAP'" ng-style="{'left':session.panelleft}">
+					<div class="panel-bar">Aide&nbsp;
+						<btn-aide ref="'proteger'"></btn-aide>
+						<div ng-class="{'btnAnnulerA':!idem, 'btnAnnulerF':idem}" ng-click="panelOff();"></div>
+					</div>
+					<div class="panel-body">
+						<div style="text-align:center">
+							<div ng-class="{'btnTitre':true, 'disabled':disable}" 
+								ng-click="changerAP();">Mettre à jour les protections d'accès</div>
+						</div>
+						<div class="infobox">La protection contre l'écriture interdit la mise à jour du carnet et sa synchronisation.
+						Typiquement ceci permet de mettre un carnet de secrets en "archive".</div>
+						<div>
+							<input class='cb1' type='checkbox' ng-model='nvArch' ng-change="setDisableAP();">
+							<div class='cb1-label'>protection contre l'écriture</div>
+						</div>
+						<div ng-show="session.srv && !session.srvRO && carnet.courant.s">
+							<div class="infobox">Donner un droit d'accès "public" à un carnet sur le serveur la lecture des carnets publics est possible
+							permet de le lire sans avoir à donner le code PIN d'écriture 
+							mais requiert toujours de connaître la clé de cryptage.<br>
+							Si le carnet a un droit d'accès "privé" (par défaut), le code PIN d'écriture est requis, même pour une simple lecture.
+							</div>
+							<div>
+								<input class='cb1' type='checkbox' ng-model='nvPub' ng-change="setDisableAP();">
+								<div class='cb1-label'>accès public</div>
+							</div>
+						</div>
+						</div>
+						<div class="filler"></div>
+					</div>
+				</div>
+
+				<div class="panel" ng-show="session.panel == 'supprimer'" ng-style="{'left':session.panelleft}">
+					<div class="panel-bar">
+						<btn-aide ref="'supprimer'"></btn-aide>
+						<div ng-class="{'btnAnnulerA':supprLocal || supprSrv, 'btnAnnulerF':!supprLocal && !supprSrv}" 
+							ng-click="panelOff();"></div>
+					</div>
+					<div class="panel-body">
+						<div style="text-align:center">
+							<div ng-class="{'btnTitre':true, 'disabled':!supprLocal && !supprSrv}" 
+								ng-click="supprimer();">Suppression DEFINITIVE du carnet</div>
+						</div>
+						<div class='infobox'>Un carnet ne peut être supprimé que si il est "protégé en écriture"
+						depuis plus d'une heure (afin de permettre le remord).<br>
+						Un carnet local ne peut supprimé que s'il est mémorisé en local.<br>
+						Un carnet sur le serveur ne peut être supprimé que si le serveur est connecté 
+						en lecture / écriture (le code PIN aété donné).
+						</div>
+						<div class="bold large">En local :</div>
+						<div ng-show="sLoc == 1">Pas de mémorisation en local.</div>
+						<div ng-show="sLoc == 3">Le carnet n'existe pas.</div>
+						<div ng-show="sLoc == 4">Le carnet n'est pas protégé en écriture.</div>
+						<div ng-show="sLoc == 5">Le carnet est protégé en écriture depuis {{sLocD}}.</div>
+						<div ng-show="sLoc == 9">
+							<cb-ec texte="Supprimer le carnet local" model="supprLocal"></cb-ec>
+						</div>
+						<br>
+						<div class="bold large">Sur le serveur :</div>
+						<div ng-show="sSrv == 1">Le serveur n'est pas connecté.</div>
+						<div ng-show="sSrv == 2">Le serveur est connecté en lecture seule (pas de code PIN).</div>
+						<div ng-show="sSrv == 3">Le carnet n'existe pas.</div>
+						<div ng-show="sSrv == 4">Le carnet n'est pas protégé en écriture.</div>
+						<div ng-show="sSrv == 5">Le carnet est protégé en écriture depuis {{sSrvD}}.</div>
+						<div ng-show="sSrv == 9">
+							<cb-ec texte="Supprimer le carnet sur le serveur" model="supprSrv"></cb-ec>
+						</div>
+						<div class="filler"></div>
+					</div>
+				</div>
+			
+				<div class="panel" ng-show="session.panel == 'exporter'" ng-style="{'left':session.panelleft}">
+					<div class="panel-bar">
+						<btn-aide ref="'exporter'"></btn-aide>
+						<div class="btnAnnulerA" ng-click="panelOff();"></div>
+					</div>
+					<div class="panel-body">
+						<div class='infobox'>Les secrets sont exprimés en clair dans un fichier de texte.<br>
+						Selon qu'ils sont mémorisés en local et/ou sur le serveur, l'export peut concerner le contenu en local 
+						ou celui sur le serveur.</div>
+						<div style="text-align:center">
+							<div ng-show="carnet.courant.egaux" class="btnTitre" 
+								ng-click="exporter(0);">Export sur "secrets.txt" du contenu du carnet (identique en local et sur le serveur)</div>
+							<div ng-show="!carnet.courant.egaux && exportLocal" class="btnTitre" 
+								ng-click="exporter(0);">Export sur "secrets.txt" du contenu du carnet mémorisé en LOCAL</div>
+							<div ng-show="!carnet.courant.egaux && exportSrv" class="btnTitre" 
+								ng-click="exporter(1);">Export sur "secrets.txt" du contenu du carnet mémorisé sur le SERVEUR.</div>
+						</div>
+						<div class="filler"></div>
+					</div>
+				</div>
+							 
+				<div class="panel" ng-show="session.panel == 'cloner'" ng-style="{'left':session.panelleft}">
+					<div class="panel-bar">Aide&nbsp;
+						<btn-aide ref="'cloner'"></btn-aide>
+						<div ng-class="{'btnAnnulerA':!idem, 'btnAnnulerF':idem}" ng-click="panelOff();"></div>
+					</div>
+					<div class="panel-body">
+						<div style="text-align:center">
+							<div ng-class="{'btnTitre':true, 'disabled':disable}" ng-click="cloner();">
+								Création d'un nouveau carnet de secrets par clonage</div>
+						</div>
+						<div class='infobox'>Ni le nom du carnet, 
+						ni la clé de cryptage, ni la phrase pour s'en souvenir, ne PEUVENT PLUS être changés
+						après création du carnet.<br>
+						La clé de cryptage ne pourra jamais être retrouvée si elle est perdue, 
+						les secrets resteront ... secrets.</div>
+						<div class="label">Nom du nouveau carnet :</div>
+						<div class="entree">
+							<input ng-model="ncNom" type="text" ng-change="changeNcNom();">
+							<div ng-class="{'admin-diag':true, 'diagErr':ncNomErr}">{{ncNomDiag}}</div>
+						</div>
+						<div class="label">Clé de cryptage :</div>
+						<div class="entree">
+							<input ng-model="ncCle" type="{{session.enclair ? 'text' : 'password'}}" 
+								ng-change="changeNcCle();">
+							<div class="diagErr" ng-show="ncCleErr">La clé doit avoir une longueur minimale de 8 catractères</div>
+						</div>
+						<cb-ec texte="Voir la clé en clair" model='session.enclair'></cb-ec>
+						<div class="label">Vérification de la clé de cryptage :</div>
+						<div class="entree">
+							<input ng-model="ncCle2" type="{{session.enclair ? 'text' : 'password'}}" ng-change="setDisableCL();">
+							<div class="diagErr" ng-show="ncCle != ncCle2">Le code et sa vérification sont différents</div>
+						</div>
+						<div class="label">Phrase pour se rappeler de la clé :</div>
+						<div class="entree">
+							<input ng-model="ncPhrase" type="text" ng-change="changeNcPhrase();">
+							<div class="diagErr" ng-show="ncPhraseErr">La phrase doit avoir une longueur minimale de 8 catractères</div>
+						</div>
+						<div class="filler"></div>
+					</div>
+				</div>
+
+			</div>
+
+  	</div>
+</body>
+</html>

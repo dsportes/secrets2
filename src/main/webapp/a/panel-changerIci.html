@@ -1,0 +1,33 @@
+<div class="panel-bar">Aide&nbsp;
+	<div ng-show="session.ici"></div><btn-aide ref="'changerIci1'"></btn-aide></div>
+	<div ng-show="!session.ici"></div><btn-aide ref="'changerIci2'"></btn-aide></div>
+	<div ng-class="{'btnAnnulerF':idem, 'btnAnnulerA':!idem}" ng-show="session.ident" ng-click="panelOff();"></div>
+</div>
+<div class="panel-body">
+	<div style="text-align:center">
+		<div ng-show="session.ici" ng-class="{'btnTitre':true, 'disabled':disable}" 
+			ng-click="changerIci();">Changer le nom du stockage local</div>
+		<div ng-show="!session.ici" ng-class="{'btnTitre':true, 'disabled':disable}"
+			ng-click="changerIci();">Activer le stockage local</div>
+	</div>
+	<div class="infobox">Si cette session du navigateur a un risque 
+		d'être ouverte par quelqu'un d'autre voir ici&nbsp;
+		<btn-aide ref="risqueLocal"></btn-aide>
+		&nbsp;les risques encourrus en ayant un stocakge local.<br>
+		Le nom permet de voir pour les principales interventions effectuées sur les secrets et les carnets, 
+		en plus de la date et l'heure, d'où elles ont été faites.
+	</div>
+	<div class="label">Nom du stockage :</div>
+	<div class="entree">
+		<input ng-model="nvIci" type="text" ng-change="changeIci()">
+		<div ng-show="idDiag" class="diagErr">{{idDiag}}</div>
+	</div>
+	<div ng-show="session.ici" style="text-align:center">
+		<div class="btnTitre" ng-click="resetIci();">Désactiver le stockage local</div>
+	</div>
+	<div ng-show="session.ici" class="infobox">Cette opération est définitive.<br>
+		Tous les carnets de tous les pseudos seront supprimés sans possibilité de les 
+		retrouver. Seuls ceux mémorisés aussi sur le serveur seront accessibles.
+	</div>
+	<div class="filler"></div>
+</div>

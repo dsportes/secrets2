@@ -1,0 +1,209 @@
+<polymer-element name="app-bar" attributes="session dir1 carnet secrets1">
+<template>
+<style>
+.bar {
+	position: fixed;
+	top: 0;
+	left:0;
+	margin: 0;
+	width: 100%;
+	min-width: 500px;
+	z-index: 30;
+	background: linear-gradient(top, rgb(225,225,200), white);
+	background: -ms-linear-gradient(top, rgb(225,225,200), white);
+	background: -webkit-linear-gradient(top, rgb(225,225,200), white);
+	background: -moz-linear-gradient(top, rgb(225,225,200), white);
+	color: rgb(80,80,80);
+}
+
+.bar1 {
+	width: 100%;
+	padding: 0.2rem;
+	height: 2.5rem;
+	overflow: hidden;
+	border-top: 1px solid white;
+	border-bottom: 1px solid white;
+}
+
+.bar1L, .bar1D {width:49%; text-align: center;}
+.bar1D {float: right;}
+.bar1DG, .bar1DL, .bar1DV, .bar1LN {
+	background-position: left 50%;
+	background-size: 2.2rem;
+	background-repeat: no-repeat;
+	padding-left: 1rem;
+	display: inline-block;
+}
+.bar1DG {background-image: url($/images/nuageG.png$);}
+.bar1DL {background-image: url($/images/nuageL.png$);}
+.bar1DV {background-image: url($/images/nuageV.png$);}
+.bar1LN {background-image: url($/images/disk.png$);}
+
+.identite1 {
+	font-family: "MaFonteM";
+	font-size: 1.6rem;
+	color: navy;
+	margin: 0 0.5rem;
+}
+
+.identite2 {
+	font-family: "MaFonteA";
+	font-size: 1.4rem;
+	color: navy;
+	margin: 0 0 0 2rem;
+}
+
+.pinG, .pinV {
+	width: 3rem;
+	text-align: center;
+	font-size: 1.4rem;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	margin: 1px;
+	display: inline-block;
+	vertical-align: top;
+	border: 1px solid white;
+}
+.pinG {color: rgb(150,150,150); text-decoration: line-through; }
+.pinV {color: green;}
+
+.titre {
+	font-size: 1.6rem;
+	font-family: "MaFonteA";
+	max-width: 50%;
+	font-weight: bold;
+	font-style: italic;
+	margin-right: 2rem;
+	color: navy;
+	overflow: hidden;
+}
+
+.btnStd {
+	display: inline-block;
+	background: linear-gradient(right, white, rgb(225,225,200));
+	background: -ms-linear-gradient(right, white, rgb(225,225,200));
+	background: -webkit-linear-gradient(right, white, rgb(225,225,200));
+	background: -moz-linear-gradient(right, white, rgb(225,225,200));
+	padding: 0.1rem 0.5rem;
+	font-family: "MaFonteA";
+	font-size: 1.2rem;
+	color: rgb(80,80,80);
+	border-radius: 1.4rem;
+	-webkit-border-radius: 1.4rem;
+	-moz-border-radius: 1.4rem;
+	height: 1.8rem;
+	cursor: pointer;
+	border: 1px solid rgb(150,150,150);
+}
+.btnStd:hover {background: rgb(80,80,80); color: white;}
+
+</style>
+<div class="bar">
+	<template if="{{session.estAdmin}}">
+		<div class='bar1'>
+			<div style="float:right">
+				<span class="titre">Administration</span>
+				<div class="btnStd" on-click="{{quitter}}" >Quitter</div>
+				<span>Aide</span>
+				<btn-aide ref="admin"></btn-aide>
+			</div>
+			<template if="{{nomvue == 'adminid'}}">
+			<span class="identite1">{{session.ident}}</span>
+			</template>
+		</div>
+	</template>
+
+	<template if="{{!session.estAdmin}}">
+		<div class='bar1'>
+			<div style="float:right">
+				<div class="btnStd" on-click="{{quitter}}" >Quitter</div>
+				<span>Aide</span>
+				<btn-aide ref="accueil"></btn-aide>
+			</div>
+			<span class="identite1">{{session.ident}}</span>
+			<div class="{{session.md5PIN ? 'pinV':'pinG'}}">PIN</div>
+			<div class="btnStd" on-click="{{changerIdent}}" >Changer&nbsp;...</div>
+			<btn-aide ref="changerIdent"></btn-aide>
+			<span class="identite2">{{ednbx(dir1.length, 'carnet')}}</span>
+		</div>
+		
+		<div class="bar1D">
+			<template if="{{!session.srv}}">
+			<div class="bar1DG">
+				<span class="identite2" style="color:red">Off-Line</span>
+				<div class="btnStd" on-click="{{connecter}}" >Se connecter&nbsp;...</div>
+				<btn-aide ref="connexion"></btn-aide>
+			</div>
+			</template>
+	
+			<template if="{{session.srvRO && !session.md5PIN}}">
+			<div class="bar1DL">
+				<span class="identite2" style="color:orange">On-Line, lecture seule&nbsp;</span>
+				<div class="btnStd" on-click="{{changerIdent}}"><span style="color:orange">PIN non saisi</span></div>
+				<btn-aide ref="lectureSeule1"></btn-aide>
+			</div>
+			</template>
+	
+			<template if="{{session.srvRO && session.md5PIN}}">
+			<div class="bar1DL">
+				<span class="identite2" style="color:orange">On-Line, lecture seule&nbsp;</span>
+				<div class="btnStd" on-click="{{changerIdent}}"><span style="color:orange">PIN incorrect</span></div>
+				<btn-aide ref="lectureSeule2"></btn-aide>
+			</div>
+			</template>
+	
+			<template if="{{session.srv && !session.srvRO}}">
+			<div class="bar1DV">
+				<span class="identite2" style="color:green">On-Line</span>
+				<div class="btnStd" on-click="{{changerPIN}}" >Changer le PIN&nbsp;...</div>
+				<btn-aide ref="'pinServeur2'"></btn-aide>
+			</div>
+			</template>
+		</div>
+		
+		<div class="bar1L">
+			<template if="{{session.ici}}">
+			<div class="bar1LN">
+				<span class="identite2">Local&nbsp;:&nbsp;{{session.ici}}</span>
+				<div class="btnStd" on-click="{{changerIci}}" >Gérer&nbsp;...</div>
+				<btn-aide ref="changerIci1"></btn-aide>
+			</div>
+			</template>
+			<template if="{{!session.ici}}">
+			<div class="bar1LN">
+				<span class="identite2">Pas de stockage local</span>
+				<div class="btnStd" on-click="{{changerIci}}" >Activer&nbsp;...</div>
+				<btn-aide ref="changerIci2"></btn-aide>
+			</div>
+			</template>
+		</div>
+		
+		<template if="{{carnet.nom}}">
+		<div class='bar1'>
+			<span class="identite1">Carnet : <b>{{carnet.nom}}</b> - {{ednbx(secrets1.length, 'secret')}}</span>
+		</div>
+		</template>
+		
+	</template>			
+</div>
+</template>
+<script>
+  Polymer('app-bar', {
+	  connecter : function() { 
+		  Serveur.connecter();
+		  },
+	  changerIdent : function() { 
+		  Secrets.panelOn("changerIdent");
+		  },
+	  changerIci : function() { 
+		  Secrets.panelOn("changerIci");
+		  },
+	  changerPIN : function() { 
+		  Secrets.panelOn("changerPIN");
+		  },
+	  quitter : Secrets.quitter,
+	  ednbx : Util.ednbx
+  });
+</script>
+</polymer-element>

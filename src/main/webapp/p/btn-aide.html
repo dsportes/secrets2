@@ -1,0 +1,37 @@
+<polymer-element name="btn-aide" attributes="ref">
+<template>
+<style>
+.btn-aide {
+	display: inline-block;
+	width: 2rem;
+	height: 2rem;
+	border-radius: 1.4rem;
+	-webkit-border-radius: 1.4rem;
+	-moz-border-radius: 1.4rem;
+	cursor: pointer;
+	text-align: center;
+	font-size: 1.6rem;
+	font-family: "MaFonteM";
+	font-weight: normal;
+	font-style: normal;
+	color: black;
+	background-color: white;
+	border: 1px solid rgb(150,150,150);
+}
+.btn-aide:hover {background-color: rgb(80,80,80); color: white;}
+</style>
+<div class="btn-aide" ref="{{ref}}" on-click="{{aide}}">?</div>
+</template>
+<script>
+Polymer('btn-aide', {
+	aide : function(event, detail, sender) {
+		event.stopPropagation();
+		var ref = this.ref;
+		if (!ref.startsWith("$"))
+			Secrets.showAide({arg:ref, estRef:true});
+		else
+			Secrets.showAide({arg:ref.substring(1), estRef:false});
+	}
+});
+</script>
+</polymer-element>
